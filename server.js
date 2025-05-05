@@ -10,7 +10,7 @@ const server = http.createServer((req, res) => {
   res.end('Server is running\n');
 });
 
-// Add host parameter here ▼
+
 server.listen(port, '0.0.0.0', () => {
   console.log(`✅ Server operational on port ${port}`);
   console.log('📡 Waiting for incoming requests...');
