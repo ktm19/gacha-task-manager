@@ -1,8 +1,7 @@
 const http = require('http');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080; 
 
-// Startup message
 console.log('🚀 Server initializing...');
 
 const server = http.createServer((req, res) => {
@@ -11,7 +10,8 @@ const server = http.createServer((req, res) => {
   res.end('Server is running\n');
 });
 
-server.listen(port, () => {
+
+server.listen(port, '0.0.0.0', () => {
   console.log(`✅ Server operational on port ${port}`);
   console.log('📡 Waiting for incoming requests...');
 });
