@@ -11,7 +11,7 @@ const server = http.createServer((req, res) => {
 });
 
 
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, '34.82.164.247', () => {
   console.log(`✅ Server operational on port ${port}`);
   console.log('📡 Waiting for incoming requests...');
 });
