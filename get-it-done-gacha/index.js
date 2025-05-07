@@ -16,6 +16,10 @@ app.get('/users', (req, res) => {
 	);
 });
 
+app.get('/sus', (req, res) => {
+	res.send('ඞ')
+});
+
 app.route('/tasks/:task_id')
 .get( (req, res, next) => {
 	connection.query(
