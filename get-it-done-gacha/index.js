@@ -1,6 +1,15 @@
 import express from 'express'
-const app = express();
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import connection from './database.js'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const app = express();
+
+app.use(express.static(join(__dirname, 'public')));
+
+
 
 app.get('/', (req,res) => res.send('Try: /status, /users, or /tasks/2') );
 
@@ -18,6 +27,10 @@ app.get('/users', (req, res) => {
 
 app.get('/sus', (req, res) => {
 	res.send('ඞ')
+});
+
+app.get('/pog', (req, res) => {
+	res.sendFile(join(__dirname, 'public', 'pog.html'));
 });
 
 app.route('/tasks/:task_id')
