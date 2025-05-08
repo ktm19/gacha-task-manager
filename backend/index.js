@@ -80,7 +80,7 @@ app.get('/pog', (req, res) => {
 app.route('/tasks/:task_id')
 .get( (req, res, next) => {
 	connection.query(
-		"SELECT * FROM `gacha-db`.`tasks` WHERE id = ?", req.params.task_id,
+		"SELECT * FROM `main_db`.`tasks` WHERE task_id = ?", req.params.task_id,
 		(error, results, fields) => {
 			if(error) throw error;
 			res.json(results);
