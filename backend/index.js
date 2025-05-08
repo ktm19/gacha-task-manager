@@ -19,7 +19,7 @@ app.get('/status', (req, res) => res.send('Success.') );
 
 app.get('/users', (req, res) => {
 	connection.query(
-		"SELECT * FROM `gacha-db`.`users`",
+		"SELECT * FROM `main_db`.`users`",
 		(error, results, fields) => {
 			if(error) throw error;
 			res.json(results);
