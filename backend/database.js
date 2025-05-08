@@ -1,4 +1,5 @@
-import mysql from 'mysql'
+import mysql from 'mysql2'
+import 'dotenv/config'
 
 var config = {
 	    user: process.env.DB_USER,
@@ -15,7 +16,7 @@ else {
 }
 
 let connection = mysql.createConnection(config);
-
+console.log(config);
 connection.connect(function(err) {
   if (err) {
     console.error('Error connecting: ' + err.stack);
