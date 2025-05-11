@@ -1,23 +1,35 @@
 import React, { useState } from 'react';
 
-export default function textFieldSubmit() {
-    const[text, setText] = useState('');
+export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlaceholders = []}) {
+    const[text, setText] = useState(Array(numFields).fill(''));
 
+    // updates arguments array text when any field (given by index) is edited
+    const handleChange = (index, event) => {
+        const newText = [...text];
+        newText[index] = event.target.text;
+        setText(newText);
+    }
+
+    // when the form is submitted, don't refresh
+    // and take action (whatever was passed in through onSubmit)
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert('Submitted: ${text}');
-        setText('');
+        onSubmit(text);
+        setText(Array(numFields).fill(''));
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10">
-            <input 
-                type = "text"
-                value = {text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder = "Type here..."
-                className = "p-2 border border-gray-300 rounded-md w-full mb-4"
-            />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-4">
+            {text.map((text, index) => (
+                <input 
+                    key={index}
+                    type = "text"
+                    text = {text}
+                    onChange={(e) => handleChange(index, e)}
+                    placeholder = {fieldPlaceholders[index] || `Field ${index + 1}`}
+                    className = "p-2 border border-gray-300 rounded-md w-full mb-4"
+                />
+            ))}
             <button 
                 type="submit"
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"

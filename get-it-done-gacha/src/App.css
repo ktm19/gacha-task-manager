@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+/* for text box submission forms */
+form{
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
