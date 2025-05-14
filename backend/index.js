@@ -34,7 +34,7 @@ app.use(express.static(join(__dirname, 'public')));
 
 
 // for JSX
-app.set('views', join(__dirname, 'src'));
+app.set('views', join(__dirname, '../get-it-done-gacha/src'));
 app.set('view engine', 'jsx');
 app.engine('jsx', createEngine());
 
