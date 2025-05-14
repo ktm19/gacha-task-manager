@@ -25,8 +25,10 @@ import { createEngine } from 'express-react-views';
 //import bcrypt from 'bcrypt'
 import connection from './database.js'
 
+console.log("poggers");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+console.log(__dirname);
 const app = express();
 
 // for static stuff like HTML files
