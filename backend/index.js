@@ -20,6 +20,8 @@ This program is free software: you can redistribute it and/or modify
 import express from 'express'
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import React from 'react';
+import { createEngine } from 'express-react-views';
 //import bcrypt from 'bcrypt'
 import connection from './database.js'
 
@@ -27,7 +29,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
 
+// for static stuff like HTML files
 app.use(express.static(join(__dirname, 'public')));
+
+
+// for JSX
+app.set('views', join(__dirname, 'src'));
+app.set('view engine', 'jsx');
+app.engine('jsx', createEngine());
 
 app.get('/', (req,res) => res.send('Try: /status, /users, or /tasks/2') );
 
@@ -88,6 +97,10 @@ app.get('/sus', (req, res) => {
 
 app.get('/pog', (req, res) => {
 	res.sendFile(join(__dirname, 'public', 'pog.html'));
+});
+
+app.get('/supersus', (req, res) => {
+	res.render('sus', { title: 'ඞ' });
 });
 
 app.route('/tasks/:task_id')
