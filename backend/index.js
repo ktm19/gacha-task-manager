@@ -27,16 +27,16 @@ import connection from './database.js'
 
 console.log("poggers");
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = join(dirname(__filename), '..');
 console.log(__dirname);
 const app = express();
 
 // for static stuff like HTML files
 app.use(express.static(join(__dirname, 'public')));
-
+console.log(join(__dirname, 'public'))
 
 // for JSX
-app.set('views', join(__dirname, '../get-it-done-gacha/src'));
+app.set('views', join(__dirname, 'get-it-done-gacha/src'));
 app.set('view engine', 'jsx');
 app.engine('jsx', createEngine());
 
@@ -98,7 +98,7 @@ app.get('/sus', (req, res) => {
 });
 
 app.get('/pog', (req, res) => {
-	res.sendFile(join(__dirname, 'public', 'pog.html'));
+	res.sendFile(join(__dirname, 'get-it-done-gacha', 'public', 'pog.html'));
 });
 
 app.get('/supersus', (req, res) => {
