@@ -17,21 +17,33 @@ This program is free software: you can redistribute it and/or modify
 
 ========================================================== */
 
-import React from 'react';
-import './App.css'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/login.jsx';
-import Register from './pages/register.jsx';
+import mysql from 'mysql2'
+import 'dotenv/config'
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
-    </Router>
-  );
+var config = {
+	    user: process.env.DB_USER,
+	    database: process.env.DB_NAME,
+	    password: process.env.DB_PASS,
+};
+
+if (process.env.NODE_ENV === 'production') {
+  console.log('Running from cloud. Connecting to DB through GCP socket.');
+  config.socketPath = `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`;
+}
+else {
+  console.log('Running from localhost. Connecting to DB directly.');
+  config.host = process.env.DB_HOST;
 }
 
-export default App
+let connection = mysql.createConnection(config);
+console.log(config);
+connection.connect(function(err) {
+  if (err) {
+    console.error('Error connecting: ' + err.stack);
+    return;
+  }
+  console.log('Connected as thread id: ' + connection.threadId);
+});
+
+export default connection;
+
