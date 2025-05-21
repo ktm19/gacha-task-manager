@@ -31,8 +31,10 @@ const __dirname = join(dirname(__filename), "..");
 console.log(__dirname);
 const app = express();
 app.use(cors());
+
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
 
 // for static stuff like HTML files
 app.use(express.static(join(__dirname, "public")));

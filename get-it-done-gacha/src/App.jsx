@@ -25,11 +25,11 @@ import Register from './pages/register.jsx';
 import SearchForFriend from './pages/searchforfriend.jsx';
 import axios from 'axios';
 
-axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
-axios.defaults.baseURL = 'http://localhost:8080';
+
+// axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
+axios.defaults.baseURL = "http://localhost:8080";
 
 function App() {
-
     const [test, setTest] = useState([]);
     const [users, setUsers] = useState([]);
 
@@ -63,4 +63,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
