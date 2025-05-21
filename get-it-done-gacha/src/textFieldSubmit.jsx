@@ -18,6 +18,7 @@ This program is free software: you can redistribute it and/or modify
 ========================================================== */
 
 import React, { useState } from 'react';
+import axios from 'axios';
 
 export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlaceholders = []}) {
     const[text, setText] = useState(Array(numFields).fill(''));
@@ -33,6 +34,7 @@ export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlacehold
     // and take action (whatever was passed in through onSubmit)
     const handleSubmit = (e) => {
         e.preventDefault();
+        
         onSubmit(text);
         setText(Array(numFields).fill(''));
     };
