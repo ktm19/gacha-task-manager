@@ -22,6 +22,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/login.jsx';
 import Register from './pages/register.jsx';
+import SearchForFriend from './pages/searchforfriend.jsx';
 import axios from 'axios';
 
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
@@ -55,6 +56,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/searchforfriend" element={<SearchForFriend />} />
       </Routes>
     </Router>
             </>
