@@ -12,9 +12,10 @@ function Register() {
       <h1 className = "text-xl font-bold mb-4"> Register </h1>
       <TextFieldSubmit 
         numFields={3} 
-        onSubmit={(values) => alert(`Submitted`)} 
+        onSubmit={(values) => alert(`Submitted: ` + values)} 
         fieldPlaceholders={['Username', 'Password', "Re-enter Password"]}
       />
+      
       <div className="mt-4">
         <p className="text-sm">
           Already Registered?{' '}
