@@ -5,6 +5,10 @@ import '../App.css'
 import TextFieldSubmit from '../textFieldSubmit.jsx';
 import { Link } from 'react-router-dom';
 
+function submitRegister() {
+  
+}
+
 function Register() {
     console.log("Register page loaded");
   return (
@@ -12,7 +16,7 @@ function Register() {
       <h1 className = "text-xl font-bold mb-4"> Register </h1>
       <TextFieldSubmit 
         numFields={3} 
-        onSubmit={(values) => alert(`Submitted: ` + values)} 
+        onSubmit={(values) => alert("username: " + values[0] + " password: " + values[1])} 
         fieldPlaceholders={['Username', 'Password', "Re-enter Password"]}
       />
       

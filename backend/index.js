@@ -52,6 +52,7 @@ app.get("/status", function (req, res, next) {
 });
 
 app.get("/users", (req, res) => {
+  //console.log(req.body);
   connection.query(
     "SELECT * FROM `main_db`.`users`",
     (error, results, fields) => {
