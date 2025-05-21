@@ -62,7 +62,7 @@ app.get("/users", (req, res) => {
   );
 });
 
-app.get("/searchForFriend", (req, res) => {
+app.get("/searchForUser", (req, res) => {
   // console.log(req.body);
   const username = req.query.username;
   // const { username } = req.body;
