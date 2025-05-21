@@ -17,44 +17,49 @@ This program is free software: you can redistribute it and/or modify
 
 ========================================================== */
 
-import React, { useState, useEffect } from "react";
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/login.jsx";
-import Register from "./pages/register.jsx";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './pages/login.jsx';
+import Register from './pages/register.jsx';
+import SearchForFriend from './pages/searchforfriend.jsx';
+import axios from 'axios';
+
 
 // axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 axios.defaults.baseURL = "http://localhost:8080";
 
 function App() {
-  const [test, setTest] = useState([]);
-  const [users, setUsers] = useState([]);
+    const [test, setTest] = useState([]);
+    const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    axios.get("/sus").then((response) => {
-      setTest(response.data);
-    });
-  }, []);
-  console.log(test);
+    useEffect(() => {
+        axios.get('/sus').then(response => {
+            setTest(response.data);
+        });
+    }, []);
+    console.log(test);
 
-  useEffect(() => {
-    axios.get("/status").then((response) => {
-      setUsers(response.data);
-    });
-  }, []);
-  console.log(users);
-  return (
-    <>
-      <div>{test}</div>
+    useEffect(() => {
+        axios.get('/status').then(response => {
+            setUsers(response.data);
+        });
+    }, []);
+    console.log(users);
+    return (
+        <>
+            <div>
+                {test}
+                </div>
 
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </Router>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/searchforfriend" element={<SearchForFriend />} />
+      </Routes>
+    </Router>
+            </>
   );
 }
 

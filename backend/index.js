@@ -32,6 +32,10 @@ console.log(__dirname);
 const app = express();
 app.use(cors());
 
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
+
+
 // for static stuff like HTML files
 app.use(express.static(join(__dirname, "public")));
 console.log(join(__dirname, "public"));
@@ -57,6 +61,23 @@ app.get("/users", (req, res) => {
   );
 });
 
+app.get("/searchForFriend", (req, res) => {
+  // console.log(req.body);
+  const username = req.query.username;
+  // const { username } = req.body;
+  //find user by username
+  const query = "SELECT * FROM users WHERE username = ?";
+  connection.query(query, [username], async (err, results) => {
+    if (err) throw err;
+    if (results.length > 0) {
+      const user = results[0];
+      res.status(200).send(user);
+    } else {
+      res.status(404).send("User not found :(");
+    }
+  });
+});
+
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -79,7 +100,7 @@ app.post("/login", (req, res) => {
 
   //find user by username
   const query = "SELECT * FROM users WHERE username = ?";
-  connection.query(query, [username], async (err, result) => {
+  connection.query(query, [username], async (err, results) => {
     if (err) throw err;
     if (results.length > 0) {
       //CAN CHANGE BEHAVIOR IF TAKEN
