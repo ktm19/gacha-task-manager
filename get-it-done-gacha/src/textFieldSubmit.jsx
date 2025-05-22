@@ -18,6 +18,7 @@ This program is free software: you can redistribute it and/or modify
 ========================================================== */
 
 import React, { useState } from 'react';
+import axios from 'axios';
 
 export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlaceholders = []}) {
     const[text, setText] = useState(Array(numFields).fill(''));
@@ -25,13 +26,13 @@ export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlacehold
     // updates arguments array text when any field (given by index) is edited
     const handleChange = (index, event) => {
         const newText = [...text];
-        newText[index] = event.target.text;
+        newText[index] = event.target.value;
         setText(newText);
     }
 
     // when the form is submitted, don't refresh
     // and take action (whatever was passed in through onSubmit)
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         onSubmit(text);
         setText(Array(numFields).fill(''));
@@ -43,7 +44,7 @@ export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlacehold
                 <input 
                     key={index}
                     type = "text"
-                    text = {text}
+                    value = {text}
                     onChange={(e) => handleChange(index, e)}
                     placeholder = {fieldPlaceholders[index] || `Field ${index + 1}`}
                     className = "p-2 border border-gray-300 rounded-md w-full mb-4"

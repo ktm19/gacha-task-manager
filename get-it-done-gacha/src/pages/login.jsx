@@ -23,6 +23,14 @@ function Login() {
           </Link>
         </p>
         </div>
+        <div className="mt-4">
+        <p className="text-sm">
+          access to dash for testing{' '}
+          <Link to="/home" className="text-blue-500 hover:underline">
+            Dashboard here
+          </Link>
+        </p>
+        </div>
     </div>
   );
 }
