@@ -14,9 +14,9 @@ function SearchForFriend() {
   const [userToSearchFor, setUserToSearchFor] = useState("");
 
   const handleClick = (values) => {
-    setShowSearchResults(true); // Update state to render the component
     setUserToSearchFor(values[0]);
-    console.log(userToSearchFor);
+    setShowSearchResults(true); // Update state to render the component
+    console.log("handleClick says userToSearchFor is " + userToSearchFor);
   };
 
   const test = (userObj) => {
@@ -27,12 +27,18 @@ function SearchForFriend() {
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       {showSearchResults && <SearchForUser username={userToSearchFor} toDo={test}/>}
-      <h1 className = "text-xl font-bold mb-4"> Login </h1>
+      <h1 className = "text-xl font-bold mb-4"> Search for a friend </h1>
       <TextFieldSubmit 
         numFields={1} 
         onSubmit={(values) => handleClick(values)} 
         fieldPlaceholders={['Username']}
       />
+
+      <br></br>
+
+      {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
+      {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
+
       <div className="mt-4">
         <p className="text-sm">
           Want to go back?{' '}
