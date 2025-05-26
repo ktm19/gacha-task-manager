@@ -31,6 +31,7 @@ function Login() {
       username: un, 
       password: pw,
     }).then((response) => {
+      alert("Login successful! :)")
       console.log(response);
     }).catch((error) => {
       if (error.response) {

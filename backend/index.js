@@ -83,6 +83,14 @@ app.post("/register", async (req, res) => {
     return res.status(400).send("Username and password are required.");
   }
 
+  if (username.length > 12) {
+    return res.status(400).send("Username cannot exceed 12 characters.");
+  }
+
+  if (password.length > 20) {
+    return res.status(400).send("Password cannot exceed 20 characters.");
+  }
+
   try {
     // Check if username already exists
     const checkQuery = "SELECT * FROM users WHERE username = ?";
@@ -104,12 +112,12 @@ app.post("/register", async (req, res) => {
           console.error(err);
           return res.status(500).send("Error registering user.");
         }
-        res.status(200).send("User registered successfully: " + username);
+        return res.status(200).send("User registered successfully: " + username);
       });
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error.");
+    return res.status(500).send("Server error.");
   }
 });
 
@@ -120,6 +128,14 @@ app.post("/login", async (req, res) => {
   // Check for empty fields
   if (!username || !password) {
     return res.status(400).send("Username and password are required.");
+  }
+
+  if (username.length > 12) {
+    return res.status(400).send("Username cannot exceed 12 characters.");
+  }
+
+  if (password.length > 20) {
+    return res.status(400).send("Password cannot exceed 20 characters.");
   }
 
   try {
@@ -141,11 +157,11 @@ app.post("/login", async (req, res) => {
         return res.status(401).send("Invalid username or password.");
       }
 
-      res.status(200).send("Login successful.");
+      return res.status(200).send("Login successful.");
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error.");
+    return res.status(500).send("Server error.");
   }
 });
 
@@ -177,7 +193,6 @@ const port = process.env.PORT || 8080;
 app.listen(port, "0.0.0.0", () => {
   console.log(`App is running at: http://0.0.0.0:${port}`);
 });
-
 
 
 
