@@ -18,6 +18,9 @@ This program is free software: you can redistribute it and/or modify
 ========================================================== */
 
 import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -30,7 +33,23 @@ const __dirname = join(dirname(__filename), "..");
 // console.log(__dirname);
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  credentials: true,
+}));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  session({
+    key: "userId",
+    secret: "poggers",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: 60 * 60 * 24,
+    }
+  })
+)
+
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
@@ -121,6 +140,14 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.get("/login", async (req, res) => {
+  if (req.session.user) {
+    res.send({ loggedIn: true, user: req.session.user });
+  } else {
+    res.send({ loggedIn: false});
+  }
+})
+
 app.post("/login", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -157,6 +184,7 @@ app.post("/login", async (req, res) => {
         return res.status(401).send("Invalid username or password.");
       }
 
+      req.session.user = user;
       return res.status(200).send("Login successful.");
     });
   } catch (error) {
