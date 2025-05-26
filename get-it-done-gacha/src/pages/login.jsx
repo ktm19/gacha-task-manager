@@ -47,6 +47,16 @@ function Login() {
     });
   };
 
+  useEffect(()=> {
+    console.log("Use effect test");
+    axios.get("/login").then((response) => {
+      console.log(response);
+      if (response.data.loggedInd == true) {
+        console.log(response.data.user[0].username);
+      }
+    })
+  })
+
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Login </h1>

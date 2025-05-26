@@ -47,6 +47,16 @@ function Register() {
     });
   };
 
+  useEffect(()=> {
+    console.log("Use effect test");
+    axios.get("/login").then((response) => {
+      console.log(response);
+      if (response.data.loggedInd == true) {
+        console.log(response.data.user[0].username);
+      }
+    })
+  })
+
   console.log("Register page loaded");
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">

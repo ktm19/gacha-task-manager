@@ -45,7 +45,7 @@ function App() {
             setUsers(response.data);
         });
     }, []);
-    console.log(users);
+    // console.log(users);
     return (
         <>
             <div>
