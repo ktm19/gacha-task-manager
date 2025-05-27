@@ -93,6 +93,16 @@ app.get("/searchForUser", (req, res) => {
   });
 });
 
+app.get("/getFriends", (req, res) => {
+  const username = req.query.username;
+  //find friends of given username
+  const query = "SELECT * FROM friends WHERE user_id = ?";
+  connection.query(query, [username], async (err, results) => {
+    if (err) throw err;
+    res.status(200).send(results);
+  });
+});
+
 app.post("/register", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;

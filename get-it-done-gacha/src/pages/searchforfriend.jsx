@@ -17,12 +17,11 @@ This program is free software: you can redistribute it and/or modify
 
 ========================================================== */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 //in a new dir, make sure to go up 1 more level
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
 import { Link } from 'react-router-dom';
-import SearchForUser from '../databaseComponents/searchforuser.jsx';
 import axios from 'axios';
 
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
@@ -55,16 +54,6 @@ function SearchForFriend() {
       }
     });
   };
-
-  // const handleClick = (values) => {
-  //   setUserToSearchFor(values[0]);
-  //   setShowSearchResults(true); // Update state to render the component
-  //   console.log("handleClick says userToSearchFor is " + userToSearchFor);
-  // };
-
-  // const test = (userObj) => {
-  //   console.log("got username: " + userObj["username"]);
-  // }
 
   console.log("Search for friends page loaded");
   return (
