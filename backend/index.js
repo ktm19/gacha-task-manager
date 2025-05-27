@@ -16,31 +16,46 @@ This program is free software: you can redistribute it and/or modify
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ========================================================== */
+
 import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import React from "react";
 import { createEngine } from "express-react-views";
-//import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt'
 import connection from "./database.js";
 
-console.log("poggers");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(dirname(__filename), "..");
-console.log(__dirname);
+// console.log(__dirname);
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  credentials: true,
+}));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  session({
+    key: "userId",
+    secret: "poggers",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: 60 * 60 * 24,
+    }
+  })
+)
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-
-
-// for static stuff like HTML files
-app.use(express.static(join(__dirname, "public")));
+app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
 console.log(join(__dirname, "public"));
 
-// for JSX
+// For JSX
 app.set("views", join(__dirname, "get-it-done-gacha/src"));
 app.set("view engine", "jsx");
 app.engine("jsx", createEngine());
@@ -79,45 +94,103 @@ app.get("/searchForUser", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+  const username = req.body.username;
+  const password = req.body.password;
+
+  // Check for empty fields
+  if (!username || !password) {
+    return res.status(400).send("Username and password are required.");
+  }
+
+  if (username.length > 12) {
+    return res.status(400).send("Username cannot exceed 12 characters.");
+  }
+
+  if (password.length > 20) {
+    return res.status(400).send("Password cannot exceed 20 characters.");
+  }
+
   try {
-    //NOTE: CURRENTLY NOT HASHING. NEED TO IMPORT BCRYPT
-    /*const hashedPassword = await bcrypt.hash(password, 10);*/
-    const query =
-      "INSERT INTO users (username, password, money, pity) VALUE (?, ?, 0, 0)";
-    //TO DO: implement check if username is already taken
-    connection.query(query, [username, password], (err, result) => {
-      if (err) throw err;
-      res.status(201).send("User registered successfully: " + username);
+    // Check if username already exists
+    const checkQuery = "SELECT * FROM users WHERE username = ?";
+    connection.query(checkQuery, [username], async (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error checking username.");
+      }
+      if (result.length > 0) {
+        return res.status(409).send("Username already taken.");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+
+      // Insert new user
+      const insertQuery = "INSERT INTO users (username, password, money, pity) VALUES (?, ?, 0, 0)";
+      connection.query(insertQuery, [username, hashedPassword], (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error registering user.");
+        }
+        return res.status(200).send("User registered successfully: " + username);
+      });
     });
   } catch (error) {
-    res.status(500).send("Error registering user");
+    console.error(error);
+    return res.status(500).send("Server error.");
   }
 });
 
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+app.get("/login", async (req, res) => {
+  if (req.session.user) {
+    res.send({ loggedIn: true, user: req.session.user });
+  } else {
+    res.send({ loggedIn: false});
+  }
+})
 
-  //find user by username
-  const query = "SELECT * FROM users WHERE username = ?";
-  connection.query(query, [username], async (err, results) => {
-    if (err) throw err;
-    if (results.length > 0) {
-      //CAN CHANGE BEHAVIOR IF TAKEN
-      const user = results[0];
-      //to do: implement hash
-      /**const ismatch = await bcrypt.compare(password, user.password);
-       * if (isMatch)
-       */
-      if (user.password == password) {
-        res.status(200).send("Login successful");
-      } else {
-        res.status(401).send("Invalid credentials");
+app.post("/login", async (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  // Check for empty fields
+  if (!username || !password) {
+    return res.status(400).send("Username and password are required.");
+  }
+
+  if (username.length > 12) {
+    return res.status(400).send("Username cannot exceed 12 characters.");
+  }
+
+  if (password.length > 20) {
+    return res.status(400).send("Password cannot exceed 20 characters.");
+  }
+
+  try {
+    const query = "SELECT * FROM users WHERE username = ?";
+    connection.query(query, [username], async (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error logging in.");
       }
-    } else {
-      res.status(404).send("User not found :(");
-    }
-  });
+      if (result.length === 0) {
+        return res.status(401).send("Invalid username or password.");
+      }
+
+      const user = result[0];
+
+      // Compare hashed password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).send("Invalid username or password.");
+      }
+
+      req.session.user = user;
+      return res.status(200).send("Login successful.");
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
 });
 
 app.get("/sus", (req, res, next) => {
@@ -148,3 +221,7 @@ const port = process.env.PORT || 8080;
 app.listen(port, "0.0.0.0", () => {
   console.log(`App is running at: http://0.0.0.0:${port}`);
 });
+
+
+
+
