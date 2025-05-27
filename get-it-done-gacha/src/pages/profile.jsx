@@ -10,12 +10,17 @@ function Profile() {
   const [username, setUsername] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResultMessage, setSearchResultMessage] = useState("");
+  const [friendsList, setFriendsList] = useState([]);
 
   const get_friends = () => {
     axios.get("/getFriends?username=" + username).then((response) => {
         console.log(response.data);
-        console.log("aaa");
-        console.log((response.data)[0]["username"]);
+        const newFriendsList = [];
+        for (let i = 0; i < response.data.length; i++) {
+            newFriendsList.push(<li key={i}>{(response.data)[i]["name"]}</li>);
+        }
+        setFriendsList(newFriendsList);
+
         setShowSearchResults(true); // Update state to render the component
       }).catch((error) => {
         setShowSearchResults(false);
@@ -35,7 +40,7 @@ function Profile() {
 
   useEffect(()=> {
     console.log("Use effect test");
-    axios.get("/login").then((response) => {
+    axios.get("/login").then((response) => { 
       console.log(response);
       if (response.data.loggedIn == true) {
         console.log(response.data.user[0].username);
@@ -48,20 +53,17 @@ function Profile() {
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Profile </h1>
 
-      <form onSubmit={() => { get_friends(); }} className="flex flex-col gap-2 p-4">
-            <button 
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-            >
-                Get friends list
-            </button>
-        </form>
+        <button type="submit" onClick={get_friends}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+            Get friends list
+        </button>
     
         <br></br>
 
         <p>{searchResultMessage}</p>
-        {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
-        {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
+
+        <ul>{friendsList}</ul>
 
       <div className="mt-4">
         <p className="text-sm">
