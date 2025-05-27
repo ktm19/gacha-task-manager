@@ -30,31 +30,56 @@ axios.defaults.baseURL = 'http://localhost:8080';
 
 function SearchForFriend() {
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [userToSearchFor, setUserToSearchFor] = useState("");
+  const [searchResultMessage, setSearchResultMessage] = useState("");
 
-  const handleClick = (values) => {
-    setUserToSearchFor(values[0]);
-    setShowSearchResults(true); // Update state to render the component
-    console.log("handleClick says userToSearchFor is " + userToSearchFor);
+  const search = (username) => {
+    axios.get("/searchForUser?username=" + username).then((response) => {
+      // alert("Searching for: " + username);
+      console.log(response.data);
+      console.log("aaa");
+      console.log((response.data)["username"]);
+      setSearchResultMessage("Found: " + (response.data)["username"]);
+      setShowSearchResults(true); // Update state to render the component
+    }).catch((error) => {
+      setShowSearchResults(false);
+      if (error.response) {
+        // alert(error.response.data);
+        setSearchResultMessage(error.response.data);
+        console.log(error.response.data);
+      } else if (error.request) {
+        alert("No response from server.");
+        console.log("No response from server.");
+      } else {
+        alert("A critical error has occured :(");
+        console.log("Axios error:", error.message);
+      }
+    });
   };
 
-  const test = (userObj) => {
-    console.log("got username: " + userObj["username"]);
-  }
+  // const handleClick = (values) => {
+  //   setUserToSearchFor(values[0]);
+  //   setShowSearchResults(true); // Update state to render the component
+  //   console.log("handleClick says userToSearchFor is " + userToSearchFor);
+  // };
+
+  // const test = (userObj) => {
+  //   console.log("got username: " + userObj["username"]);
+  // }
 
   console.log("Search for friends page loaded");
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
-      {showSearchResults && <SearchForUser username={userToSearchFor} toDo={test}/>}
       <h1 className = "text-xl font-bold mb-4"> Search for a friend </h1>
       <TextFieldSubmit 
         numFields={1} 
-        onSubmit={(values) => handleClick(values)} 
+        // onSubmit={(values) => handleClick(values)} 
+        onSubmit={(username) => search(username)}
         fieldPlaceholders={['Username']}
       />
 
       <br></br>
 
+      <p>{searchResultMessage}</p>
       {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
       {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
 
