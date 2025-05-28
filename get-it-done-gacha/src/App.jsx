@@ -24,7 +24,8 @@ import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
 import Dashboard from "./pages/dashboard.jsx";
 import SearchForFriend from './pages/searchforfriend.jsx';
-import axios from "axios";
+import Profile from './pages/profile.jsx';
+import axios from 'axios';
 
 
 // axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
@@ -53,15 +54,15 @@ function App() {
                 {test}
                 </div>
 
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Dashboard />} />
-          <Route path="/searchforfriend" element={<SearchForFriend />} />
-        </Routes>
-      </Router>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/searchforfriend" element={<SearchForFriend />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Router>
+            </>
   );
 }
 
