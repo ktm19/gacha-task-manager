@@ -30,6 +30,8 @@ axios.defaults.baseURL = 'http://localhost:8080';
 function SearchForFriend() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResultMessage, setSearchResultMessage] = useState("");
+  const [username, setUsername] = useState("");
+  const [friend, SetFriend] = useState("");
 
   const search = (username) => {
     axios.get("/searchForUser?username=" + username).then((response) => {
@@ -39,6 +41,7 @@ function SearchForFriend() {
       console.log((response.data)["username"]);
       setSearchResultMessage("Found: " + (response.data)["username"]);
       setShowSearchResults(true); // Update state to render the component
+      SetFriend((response.data)["username"]);
     }).catch((error) => {
       setShowSearchResults(false);
       if (error.response) {
@@ -55,7 +58,72 @@ function SearchForFriend() {
     });
   };
 
+  const add_friend = (fn) => {
+    // check to make sure username set
+    if (username == "") {
+      alert("Username is empty");
+      return;
+    }
+    axios.post("/addFriend", {
+      username: username,
+      friend_name: fn,
+    }).then((response) => {
+      setSearchResultMessage("Added friend: " + fn);
+    }).catch((error) => {
+      if (error.response) {
+        alert(error.response.data);
+        console.log(error.response.data);
+      } else if (error.request) {
+        alert("No response from server.");
+        console.log("No response from server.");
+      } else {
+        alert("A critical error has occured :(");
+        console.log("Axios error:", error.message);
+      }
+    });
+  };
+
+  const remove_friend = (fn) => {
+    // check to make sure username set
+    // if (username == "") {
+    //   alert("Username is empty");
+    //   return;
+    // }
+    axios.post("/removeFriend", {
+      username: username,
+      friend_name: fn,
+    }).then((response) => {
+      setSearchResultMessage("Removed friend: " + fn);
+    }).catch((error) => {
+      if (error.response) {
+        alert(error.response.data);
+        console.log(error.response.data);
+      } else if (error.request) {
+        alert("No response from server.");
+        console.log("No response from server.");
+      } else {
+        alert("A critical error has occured :(");
+        console.log("Axios error:", error.message);
+      }
+    });
+  };
+
   console.log("Search for friends page loaded");
+
+
+  // TODO: make sure to set username here!
+
+  // useEffect(()=> {
+  //   console.log("Use effect test");
+  //   axios.get("/login").then((response) => {
+  //     console.log(response);
+  //     if (response.data.loggedIn) {
+  //       console.log(response.data.user[0].username);
+  //     }
+  //   })
+  // })
+
+
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Search for a friend </h1>
@@ -69,8 +137,8 @@ function SearchForFriend() {
       <br></br>
 
       <p>{searchResultMessage}</p>
-      {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
-      {showSearchResults && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
+      {showSearchResults && <button type="submit" onClick={() => {add_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
+      {showSearchResults && <button type="submit" onClick = {() => {remove_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
 
       <div className="mt-4">
         <p className="text-sm">
