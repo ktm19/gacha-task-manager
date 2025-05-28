@@ -58,6 +58,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Dashboard />} />
         <Route path="/searchforfriend" element={<SearchForFriend />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
