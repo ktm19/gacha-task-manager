@@ -62,12 +62,9 @@ app.engine("jsx", createEngine());
 
 app.get("/", (req, res) => res.send("Try: /status, /users, or /tasks/2"));
 
-app.get("/status", function (req, res, next) {
-  res.send("Success.");
-});
+app.get("/status", function (req, res, next) { res.send("Success."); });
 
 app.get("/users", (req, res) => {
-  //console.log(req.body);
   connection.query(
     "SELECT * FROM `main_db`.`users`",
     (error, results, fields) => {
@@ -77,64 +74,23 @@ app.get("/users", (req, res) => {
   );
 });
 
-app.get("/searchForUser", (req, res) => {
-  // console.log(req.body);
-  const username = req.query.username;
-  // const { username } = req.body;
-  //find user by username
-  const query = "SELECT * FROM users WHERE username = ?";
-  connection.query(query, [username], async (err, results) => {
-    if (err) throw err;
-    if (results.length > 0) {
-      const user = results[0];
-      res.status(200).send(user);
-    } else {
-      res.status(404).send("User not found :(");
-    }
-  });
-});
-
-app.get("/getFriends", (req, res) => {
-  const username = req.query.username;
-  //find friends of given username
-  const query = "SELECT * FROM friends WHERE username = ?";
-  connection.query(query, [username], async (err, results) => {
-    if (err) throw err;
-    res.status(200).send(results);
-  });
-});
-
 app.post("/register", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  // Check for empty fields
-  if (!username || !password) {
-    return res.status(400).send("Username and password are required.");
-  }
-
-  if (username.length > 12) {
-    return res.status(400).send("Username cannot exceed 12 characters.");
-  }
-
-  if (password.length > 20) {
-    return res.status(400).send("Password cannot exceed 20 characters.");
-  }
+  // Check for invalid username or password
+  if (!username || !password) { return res.status(400).send("Username and password are required."); }
+  if (username.length > 12) { return res.status(400).send("Username cannot exceed 12 characters."); }
+  if (password.length > 20) { return res.status(400).send("Password cannot exceed 20 characters."); }
 
   try {
     // Check if username already exists
     const checkQuery = "SELECT * FROM users WHERE username = ?";
     connection.query(checkQuery, [username], async (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error checking username.");
-      }
-      if (result.length > 0) {
-        return res.status(409).send("Username already taken.");
-      }
+      if (err) { console.error(err); return res.status(500).send("Error checking username."); }
+      if (result.length > 0) { return res.status(409).send("Username already taken."); }
 
       const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
-
       // Insert new user
       const insertQuery = "INSERT INTO users (username, password, money, pity) VALUES (?, ?, 0, 0)";
       connection.query(insertQuery, [username, hashedPassword], (err, result) => {
@@ -163,37 +119,22 @@ app.post("/login", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  // Check for empty fields
-  if (!username || !password) {
-    return res.status(400).send("Username and password are required.");
-  }
-
-  if (username.length > 12) {
-    return res.status(400).send("Username cannot exceed 12 characters.");
-  }
-
-  if (password.length > 20) {
-    return res.status(400).send("Password cannot exceed 20 characters.");
-  }
+  // Check for invalid username or password
+  if (!username || !password) { return res.status(400).send("Username and password are required."); }
+  if (username.length > 12) { return res.status(400).send("Username cannot exceed 12 characters."); }
+  if (password.length > 20) { return res.status(400).send("Password cannot exceed 20 characters."); }
 
   try {
     const query = "SELECT * FROM users WHERE username = ?";
     connection.query(query, [username], async (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error logging in.");
-      }
-      if (result.length === 0) {
-        return res.status(401).send("Invalid username or password.");
-      }
+      if (err) { console.error(err); return res.status(500).send("Error logging in."); }
+      if (result.length === 0) { return res.status(401).send("Invalid username or password."); }
 
       const user = result[0];
 
       // Compare hashed password
       const passwordMatch = await bcrypt.compare(password, user.password);
-      if (!passwordMatch) {
-        return res.status(401).send("Invalid username or password.");
-      }
+      if (!passwordMatch) { return res.status(401).send("Invalid username or password."); }
 
       req.session.user = user;
       return res.status(200).send("Login successful.");
@@ -204,17 +145,92 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/sus", (req, res, next) => {
-  res.send("ඞ");
+
+app.get("/searchForUser", (req, res) => { //find user by username
+  const username = req.query.username;
+  const query = "SELECT * FROM users WHERE username = ?";
+  connection.query(query, [username], async (err, results) => {
+    if (err) throw err;
+    if (results.length > 0) {
+      const user = results[0];
+      res.status(200).send(user);
+    } else {
+      res.status(404).send("User not found :(");
+    }
+  });
 });
 
-app.get("/pog", (req, res) => {
-  res.sendFile(join(__dirname, "get-it-done-gacha", "public", "pog.html"));
+app.get("/getFriends", (req, res) => { //find friends of given username
+  const username = req.query.username;
+  const query = "SELECT * FROM friends WHERE username = ?";
+  connection.query(query, [username], async (err, results) => {
+    if (err) throw err;
+    res.status(200).send(results);
+  });
 });
 
-app.get("/supersus", (req, res) => {
-  res.render("sus", { title: "ඞ" });
+
+app.post("/addFriend", async (req, res) => {
+  const username = req.body.username;
+  const friend_name = req.body.friend_name;
+
+  try {
+    // TODO: do some error checking here
+
+    const insertQuery = "INSERT INTO friends (username, user_id, name, friend_id) VALUES (?, 0, ?, 0)";
+    connection.query(insertQuery, [username, friend_name], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error adding friend.");
+      }
+    });
+    connection.query(insertQuery, [friend_name, username], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error adding friend.");
+      }
+      return res.status(200).send("Friend added successfully: " + friend_name);
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
 });
+
+
+app.post("/removeFriend", async (req, res) => {
+  const username = req.body.username;
+  const friend_name = req.body.friend_name;
+
+  try {
+    // TODO: do some error checking here
+
+    const removeQuery = "DELETE FROM friends WHERE username = ? AND name = ?;"
+    connection.query(removeQuery, [username, friend_name], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error removing friend.");
+      }
+    });
+    connection.query(removeQuery, [friend_name, username], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error removing friend.");
+      }
+      return res.status(200).send("Friend removed successfully: " + friend_name);
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+
+app.get("/sus", (req, res, next) => { res.send("ඞ"); });
+
+app.get("/pog", (req, res) => { res.sendFile(join(__dirname, "get-it-done-gacha", "public", "pog.html")); });
+
+app.get("/supersus", (req, res) => { res.render("sus", { title: "ඞ" }); });
 
 app.route("/tasks/:task_id").get((req, res, next) => {
   connection.query(
