@@ -77,8 +77,7 @@ app.get("/users", (req, res) => {
   );
 });
 
-app.get("/searchForUser", (req, res) => {
-  // console.log(req.body);
+app.get("/searchForUser", async (req, res) => {
   const username = req.query.username;
   // const { username } = req.body;
   //find user by username
@@ -89,10 +88,37 @@ app.get("/searchForUser", (req, res) => {
       const user = results[0];
       res.status(200).send(user);
     } else {
-      res.status(404).send("User not found :(");
+      res.status(404).send("User not found :(: " + username);
     }
   });
 });
+
+app.put("/updatePity", async (req, res) => {
+  const username = req.body.username;
+  const pity = req.body.pity;
+
+  var sql = "UPDATE users SET pity = '" + pity + "' WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("updated pity: " + pity);
+    return res.status(200).send("Pity Update successful.");
+  });
+}); 
+
+app.put("/updatePulls", async (req, res) => {
+  const username = req.body.username;
+  const pulls = req.body.pulls;
+
+  var sql = "UPDATE users SET money = '" + pulls + "' WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("updated pulls:" + pulls);
+    return res.status(200).send("Update Pulls successful.");
+  });
+}); 
+
 
 app.post("/register", async (req, res) => {
   const username = req.body.username;

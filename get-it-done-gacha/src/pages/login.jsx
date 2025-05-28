@@ -52,7 +52,7 @@ function Login() {
     console.log("Use effect test");
     axios.get("/login").then((response) => {
       console.log(response);
-      if (response.data.loggedInd == true) {
+      if (response.data.loggedIn == true) {
         console.log(response.data.user[0].username);
       }
     })

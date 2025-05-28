@@ -22,6 +22,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/login.jsx';
 import Register from './pages/register.jsx';
+import Gacha from './pages/gacha.jsx';
 import SearchForFriend from './pages/searchforfriend.jsx';
 import axios from 'axios';
 
@@ -57,6 +58,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/searchforfriend" element={<SearchForFriend />} />
+        <Route path="/gacha" element={<Gacha />} />
       </Routes>
     </Router>
             </>
