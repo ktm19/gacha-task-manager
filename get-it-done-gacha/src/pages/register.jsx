@@ -25,6 +25,10 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
+function submitRegister() {
+  
+}
+
 function Register() {
   const register = (un, pw) => {
     axios.post("/register", {
@@ -63,6 +67,7 @@ function Register() {
       <h1 className = "text-xl font-bold mb-4"> Register </h1>
       <TextFieldSubmit 
         numFields={3} 
+
         onSubmit={(values) => {
           const [username, password, confirmPassword] = values;
           if (password !== confirmPassword) {
@@ -72,6 +77,7 @@ function Register() {
           }
           register(username, password);
         }}
+
         fieldPlaceholders={['Username', 'Password', "Re-enter Password"]}
       />
       

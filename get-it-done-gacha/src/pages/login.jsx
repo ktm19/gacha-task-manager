@@ -25,6 +25,7 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
+
 function Login() {
   const login = (un, pw) => {
     axios.post("/login", {
@@ -73,6 +74,14 @@ function Login() {
           Don't have an account?{' '}
           <Link to="/register" className="text-blue-500 hover:underline">
             Register here
+          </Link>
+        </p>
+        </div>
+        <div className="mt-4">
+        <p className="text-sm">
+          access to dash for testing{' '}
+          <Link to="/home" className="text-blue-500 hover:underline">
+            Dashboard here
           </Link>
         </p>
         </div>
