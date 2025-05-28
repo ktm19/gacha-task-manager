@@ -33,20 +33,20 @@ axios.defaults.baseURL = "http://localhost:8080";
 function App() {
     const [test, setTest] = useState([]);
     const [users, setUsers] = useState([]);
-
+    /*
     useEffect(() => {
         axios.get('/sus').then(response => {
             setTest(response.data);
         });
     }, []);
     console.log(test);
-
+    */
     useEffect(() => {
         axios.get('/status').then(response => {
             setUsers(response.data);
         });
     }, []);
-    console.log(users);
+    // console.log(users);
     return (
         <>
             <div>
@@ -66,3 +66,6 @@ function App() {
 }
 
 export default App;
+
+
+
