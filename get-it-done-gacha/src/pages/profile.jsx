@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import '../App.css' 
+import '../App.css';
+import '../styles/Profile.css';
 import TextFieldSubmit from '../textFieldSubmit.jsx';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -20,12 +21,10 @@ function Profile() {
             newFriendsList.push(<li key={i}>{(response.data)[i]["name"]}</li>);
         }
         setFriendsList(newFriendsList);
-
-        setShowSearchResults(true); // Update state to render the component
+        setShowSearchResults(true);
       }).catch((error) => {
         setShowSearchResults(false);
         if (error.response) {
-          // alert(error.response.data);
           setSearchResultMessage(error.response.data);
           console.log(error.response.data);
         } else if (error.request) {
@@ -38,7 +37,7 @@ function Profile() {
       });
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     console.log("Use effect test");
     axios.get("/login").then((response) => { 
       console.log(response);
@@ -47,36 +46,60 @@ function Profile() {
         setUsername(response.data.user[0].username);
       }
     })
-  })
+  }, []);
 
   return (
-    <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
-      <h1 className = "text-xl font-bold mb-4"> Profile </h1>
+    <div className="profile-container">
+      {/* Username in top left */}
+      <div className="username">
+        {username || "Guest"}
+      </div>
 
-        <button type="submit" onClick={get_friends}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-            Get friends list
-        </button>
-    
-        <br></br>
-
-        <p>{searchResultMessage}</p>
-
-        <ul>{friendsList}</ul>
-
-      <div className="mt-4">
-        <p className="text-sm">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
-            Register here
-          </Link>
-        </p>
+      {/* Status Box */}
+      <div className="status-box">
+        <span className="status-label">
+          Status
+        </span>
+        <div className="status-content">
+          Status placeholder
         </div>
+      </div>
+
+      {/* Bottom Section Container */}
+      <div className="bottom-section">
+        {/* Shelf Section */}
+        <div className="section">
+          <h2 className="section-title">My Shelf</h2>
+          <div className="section-content">
+            <div className="shelf-grid">
+              {/* 4 placeholder squares */}
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="shelf-item">
+                  Shelf Item {i}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Friends Section */}
+        <div className="section">
+          <h2 className="section-title">Friends</h2>
+          <div className="section-content">
+            <div className="friends-list">
+              {friendsList.length > 0 ? (
+                <ul>{friendsList}</ul>
+              ) : (
+                "No friends added yet"
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default Profile
+export default Profile;
 
 
