@@ -93,31 +93,30 @@ app.get("/searchForUser", async (req, res) => {
   });
 });
 
-app.put("/updatePity", async (req, res) => {
+app.put("/pull", async (req, res) => {
   const username = req.body.username;
-  const pity = req.body.pity;
 
-  var sql = "UPDATE users SET pity = '" + pity + "' WHERE username = '" + username + "'";
+  var sql = "UPDATE users SET pity = pity + 1, money = money - 1 WHERE username = '" + username + "'";
   //console.log(sql);
   connection.query(sql, function(err, result) {
     if (err) throw err;
-    console.log("updated pity: " + pity);
+    console.log("updated pity + pulls");
     return res.status(200).send("Pity Update successful.");
   });
 }); 
 
-app.put("/updatePulls", async (req, res) => {
-  const username = req.body.username;
-  const pulls = req.body.pulls;
+// app.put("/updatePulls", async (req, res) => {
+//   const username = req.body.username;
+//   const pulls = req.body.pulls;
 
-  var sql = "UPDATE users SET money = '" + pulls + "' WHERE username = '" + username + "'";
-  //console.log(sql);
-  connection.query(sql, function(err, result) {
-    if (err) throw err;
-    console.log("updated pulls:" + pulls);
-    return res.status(200).send("Update Pulls successful.");
-  });
-}); 
+//   var sql = "UPDATE users SET money = '" + pulls + "' WHERE username = '" + username + "'";
+//   //console.log(sql);
+//   connection.query(sql, function(err, result) {
+//     if (err) throw err;
+//     console.log("updated pulls:" + pulls);
+//     return res.status(200).send("Update Pulls successful.");
+//   });
+// }); 
 
 
 app.post("/register", async (req, res) => {
