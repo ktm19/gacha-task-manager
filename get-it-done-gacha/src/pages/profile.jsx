@@ -13,6 +13,13 @@ function Profile() {
   const [searchResultMessage, setSearchResultMessage] = useState("");
   const [friendsList, setFriendsList] = useState([]);
 
+  const containerStyle = {
+    backgroundImage: 'url(/bliss_background.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  };
+
   const get_friends = () => {
     axios.get("/getFriends?username=" + username).then((response) => {
         console.log(response.data);
@@ -49,10 +56,12 @@ function Profile() {
   }, []);
 
   return (
-    <div className="profile-container">
+    <div className="profile-container" style={containerStyle}>
       {/* Username in top left */}
       <div className="username">
-        {username || "Guest"}
+        <h2><Link to={`/dashboard`} className="username-link">
+          {username || "Guest"}
+        </Link></h2>
       </div>
 
       {/* Status Box */}

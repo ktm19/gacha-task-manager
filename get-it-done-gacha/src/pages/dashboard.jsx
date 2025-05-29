@@ -1,14 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Dashboard.css';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+
+axios.defaults.baseURL = 'http://localhost:8080';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('tasks');
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    axios.get("/login").then((response) => {
+      console.log(response);
+      if (response.data.loggedIn === true) {
+        console.log(response.data.user[0].username);
+        setUsername(response.data.user[0].username);
+      }
+    });
+  }, []);
 
   return (
     <div className="dashboard-container">
       {/* Header Section */}
       <div className="dashboard-header">
-        <h1>DASHBOARD</h1>
+        <Link to={`/profile`} className="username-link">
+          <h2><span className="text-purple">
+            {`${username || "Guest"}'${username && !username.endsWith('s') ? 's' : ''} Dashboard`}
+          </span>
+          </h2>
+        </Link>
       </div>
 
       {/* Content Section */}

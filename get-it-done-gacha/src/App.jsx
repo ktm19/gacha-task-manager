@@ -25,47 +25,33 @@ import Register from "./pages/register.jsx";
 import Dashboard from "./pages/dashboard.jsx";
 import SearchForFriend from './pages/searchforfriend.jsx';
 import Profile from './pages/profile.jsx';
+import Directory from './pages/directory.jsx';
 import axios from 'axios';
 
-
-// axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 axios.defaults.baseURL = "http://localhost:8080";
 
 function App() {
-    const [test, setTest] = useState([]);
     const [users, setUsers] = useState([]);
-    /*
-    useEffect(() => {
-        axios.get('/sus').then(response => {
-            setTest(response.data);
-        });
-    }, []);
-    console.log(test);
-    */
+
     useEffect(() => {
         axios.get('/status').then(response => {
             setUsers(response.data);
         });
     }, []);
-    // console.log(users);
-    return (
-        <>
-            <div>
-                {test}
-                </div>
 
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Dashboard />} />
-        <Route path="/searchforfriend" element={<SearchForFriend />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </Router>
-            </>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/home" element={<Dashboard />} />
+                <Route path="/searchforfriend" element={<SearchForFriend />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/directory" element={<Directory />} />
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;

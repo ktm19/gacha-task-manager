@@ -20,13 +20,15 @@ This program is free software: you can redistribute it and/or modify
 import React, { useState, useEffect } from 'react';
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
 
 function Login() {
+  const navigate = useNavigate();
+  
   const login = (un, pw) => {
     axios.post("/login", {
       username: un, 
@@ -34,6 +36,7 @@ function Login() {
     }).then((response) => {
       alert("Login successful! :)")
       console.log(response);
+      navigate("/dashboard");
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
@@ -48,15 +51,16 @@ function Login() {
     });
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     console.log("Use effect test");
     axios.get("/login").then((response) => {
       console.log(response);
-      if (response.data.loggedInd == true) {
+      if (response.data.loggedInd === true) {
         console.log(response.data.user[0].username);
+        navigate("/dashboard");
       }
     })
-  })
+  }, []); // Empty dependency array means this runs once on component mount
 
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
@@ -79,36 +83,12 @@ function Login() {
       </div>
       <div className="mt-4">
         <p className="text-sm">
-          access to dash for testing{' '}
-          <Link to="/home" className="text-blue-500 hover:underline">
-            Dashboard here
-          </Link>
-        </p>
-      </div>
-        <div className="mt-4">
-        <p className="text-sm">
-          access to dash for testing{' '}
-          <Link to="/searchforfriend" className="text-blue-500 hover:underline">
+          View the directory{' '}
+          <Link to="/directory" className="text-blue-500 hover:underline">
             for testing
           </Link>
         </p>
-        </div>
-        <div className="mt-4">
-        <p className="text-sm">
-          access to dash for testing{' '}
-          <Link to="/home" className="text-blue-500 hover:underline">
-            Dashboard here
-          </Link>
-        </p>
-        </div>
-        <div className="mt-4">
-        <p className="text-sm">
-          access to dash for testing{' '}
-          <Link to="/profile" className="text-blue-500 hover:underline">
-           Profile here
-          </Link>
-        </p>
-        </div>
+      </div>
     </div>
   );
 }

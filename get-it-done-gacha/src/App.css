@@ -21,6 +21,7 @@ body {
   padding: 0;
   width: 100vw;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #root {
@@ -29,6 +30,7 @@ body {
   height: 100vh;
   margin: 0 !important;
   padding: 0 !important;
+  overflow-x: hidden;
 }
 
 .logo {
