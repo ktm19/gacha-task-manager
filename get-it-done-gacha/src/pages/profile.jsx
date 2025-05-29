@@ -9,8 +9,6 @@ axios.defaults.baseURL = 'http://localhost:8080';
 
 function Profile() {
   const [username, setUsername] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [searchResultMessage, setSearchResultMessage] = useState("");
   const [friendsList, setFriendsList] = useState([]);
 
   const containerStyle = {
@@ -20,42 +18,77 @@ function Profile() {
     backgroundRepeat: 'no-repeat'
   };
 
-  const get_friends = () => {
+  const handleClick = (username) => {
+    console.log("handleClick entered");
+    setUsername(username);
+    setFriendsList([]);
+    getFriendsList(username);
+  }
+
+  const getFriendsList = (username) => {
+    console.log("entered getFriendsList");
+    if (username == "") return;
+
     axios.get("/getFriends?username=" + username).then((response) => {
-        console.log(response.data);
-        const newFriendsList = [];
-        for (let i = 0; i < response.data.length; i++) {
-            newFriendsList.push(<li key={i}>{(response.data)[i]["name"]}</li>);
-        }
-        setFriendsList(newFriendsList);
-        setShowSearchResults(true);
-      }).catch((error) => {
-        setShowSearchResults(false);
-        if (error.response) {
-          setSearchResultMessage(error.response.data);
-          console.log(error.response.data);
-        } else if (error.request) {
-          alert("No response from server.");
-          console.log("No response from server.");
-        } else {
-          alert("A critical error has occured :(");
-          console.log("Axios error:", error.message);
-        }
-      });
-  };
+      console.log(response.data);
+      const newFriendsList = [];
+      for (let i = 0; i < response.data.length; i++) {
+          newFriendsList.push(<button key = {i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}><li key={i}>{(response.data)[i]["name"]}</li></button>);
+      }
+      setFriendsList(newFriendsList);
+    }).catch((error) => {
+      if (error.response) {
+        console.log(error.response.data);
+      } else if (error.request) {
+        alert("No response from server.");
+        console.log("No response from server.");
+      } else {
+        alert("A critical error has occured :(");
+        console.log("Axios error:", error.message);
+      }
+    });
+  }
 
   useEffect(() => {
+    if (username != "") {
+      setFriendsList([]);
+      return;
+    }
+
     axios.get("/login", { 
       withCredentials: true 
     }).then((response) => {
-      // console.log(response);
-      // console.log("Response Test");
       if (response.data.loggedIn === true) {
         console.log("Logged In: " + response.data.user.username);
+        const user = response.data.user.username;
         setUsername(response.data.user.username);
+
+        if (user == "") return;
+
+        axios.get("/getFriends?username=" + user).then((response) => {
+          // console.log(response.data);
+          const newFriendsList = [];
+          for (let i = 0; i < response.data.length; i++) {
+              newFriendsList.push(<button key = {i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}><li key={i}>{(response.data)[i]["name"]}</li></button>);
+          }
+          setFriendsList(newFriendsList);
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response.data);
+          } else if (error.request) {
+            alert("No response from server.");
+            console.log("No response from server.");
+          } else {
+            alert("A critical error has occured :(");
+            console.log("Axios error:", error.message);
+          }
+        });
       }
     });
+
   }, []);
+
+
 
   return (
     <div className="profile-container" style={containerStyle}>

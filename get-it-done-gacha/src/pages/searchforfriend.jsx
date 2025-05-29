@@ -17,7 +17,7 @@ This program is free software: you can redistribute it and/or modify
 
 ========================================================== */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 //in a new dir, make sure to go up 1 more level
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
@@ -35,12 +35,8 @@ function SearchForFriend() {
 
   const search = (username) => {
     axios.get("/searchForUser?username=" + username).then((response) => {
-      // alert("Searching for: " + username);
-      console.log(response.data);
-      console.log("aaa");
-      console.log((response.data)["username"]);
       setSearchResultMessage("Found: " + (response.data)["username"]);
-      setShowSearchResults(true); // Update state to render the component
+      setShowSearchResults(true);
       SetFriend((response.data)["username"]);
     }).catch((error) => {
       setShowSearchResults(false);
@@ -59,8 +55,7 @@ function SearchForFriend() {
   };
 
   const add_friend = (fn) => {
-    // check to make sure username set
-    if (username == "") {
+    if (username == "") { // check to make sure username set
       alert("Username is empty");
       return;
     }
@@ -85,10 +80,10 @@ function SearchForFriend() {
 
   const remove_friend = (fn) => {
     // check to make sure username set
-    // if (username == "") {
-    //   alert("Username is empty");
-    //   return;
-    // }
+    if (username == "") {
+      alert("Username is empty");
+      return;
+    }
     axios.post("/removeFriend", {
       username: username,
       friend_name: fn,
@@ -123,6 +118,16 @@ function SearchForFriend() {
   //   })
   // })
 
+  useEffect(() => {
+    axios.get("/login", { 
+      withCredentials: true 
+    }).then((response) => {
+      if (response.data.loggedIn) {
+        console.log("Logged In: " + response.data.user.username);
+        setUsername(response.data.user.username);
+      }
+    });
+  }, []);
 
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
