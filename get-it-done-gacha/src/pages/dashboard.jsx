@@ -10,11 +10,14 @@ export default function Dashboard() {
   const [username, setUsername] = useState("");
 
   useEffect(() => {
-    axios.get("/login").then((response) => {
-      console.log(response);
+    axios.get("/login", { 
+      withCredentials: true 
+    }).then((response) => {
+      // console.log(response);
+      // console.log("Response Test");
       if (response.data.loggedIn === true) {
-        console.log(response.data.user[0].username);
-        setUsername(response.data.user[0].username);
+        console.log("Logged In: " + response.data.user.username);
+        setUsername(response.data.user.username);
       }
     });
   }, []);

@@ -45,14 +45,16 @@ function Profile() {
   };
 
   useEffect(() => {
-    console.log("Use effect test");
-    axios.get("/login").then((response) => { 
-      console.log(response);
-      if (response.data.loggedIn == true) {
-        console.log(response.data.user[0].username);
-        setUsername(response.data.user[0].username);
+    axios.get("/login", { 
+      withCredentials: true 
+    }).then((response) => {
+      // console.log(response);
+      // console.log("Response Test");
+      if (response.data.loggedIn === true) {
+        console.log("Logged In: " + response.data.user.username);
+        setUsername(response.data.user.username);
       }
-    })
+    });
   }, []);
 
   return (

@@ -34,6 +34,7 @@ const __dirname = join(dirname(__filename), "..");
 const app = express();
 
 app.use(cors({
+  origin: "http://localhost:5173",
   credentials: true,
 }));
 app.use(cookieParser());
@@ -45,7 +46,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      secure: false,               // set to true with HTTPS
+      sameSite: 'lax',             // set to 'none' for cross-site cookies with HTTPS
     }
   })
 )
@@ -137,14 +140,13 @@ app.post("/login", async (req, res) => {
       if (!passwordMatch) { return res.status(401).send("Invalid username or password."); }
 
       req.session.user = user;
-      return res.status(200).send("Login successful.");
+      return res.status(200).send(req.session.user);
     });
   } catch (error) {
     console.error(error);
     return res.status(500).send("Server error.");
   }
 });
-
 
 app.get("/searchForUser", (req, res) => { //find user by username
   const username = req.query.username;

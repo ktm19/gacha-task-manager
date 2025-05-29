@@ -33,9 +33,13 @@ function Login() {
     axios.post("/login", {
       username: un, 
       password: pw,
+    },
+    {
+      withCredentials: true
     }).then((response) => {
       alert("Login successful! :)")
-      console.log(response);
+      // console.log(response);
+      // console.log("Logged In");
       navigate("/dashboard");
     }).catch((error) => {
       if (error.response) {
@@ -52,14 +56,16 @@ function Login() {
   };
 
   useEffect(() => {
-    console.log("Use effect test");
-    axios.get("/login").then((response) => {
-      console.log(response);
-      if (response.data.loggedInd === true) {
-        console.log(response.data.user[0].username);
+    axios.get("/login", { 
+      withCredentials: true 
+    }).then((response) => {
+      // console.log(response);
+      // console.log("Response Test");
+      if (response.data.loggedIn === true) {
+        console.log("Logged In: " + response.data.user.username);
         navigate("/dashboard");
       }
-    })
+    });
   }, []); // Empty dependency array means this runs once on component mount
 
   return (
