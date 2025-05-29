@@ -22,7 +22,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
-import Dashboard from "./pages/dashboard.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import SearchForFriend from './pages/searchforfriend.jsx';
 import Profile from './pages/profile.jsx';
 import axios from 'axios';
@@ -60,6 +60,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/searchforfriend" element={<SearchForFriend />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
             </>
