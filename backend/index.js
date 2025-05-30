@@ -77,6 +77,57 @@ app.get("/users", (req, res) => {
   );
 });
 
+
+app.get("/searchForUser", async (req, res) => {
+  const username = req.query.username;
+  // const { username } = req.body;
+  //find user by username
+  const query = "SELECT * FROM users WHERE username = ?";
+  connection.query(query, [username], async (err, results) => {
+    if (err) throw err;
+    if (results.length > 0) {
+      const user = results[0];
+      res.status(200).send(user);
+    } else {
+      res.status(404).send("User not found :(: " + username);
+    }
+  });
+});
+
+app.put("/pull", async (req, res) => {
+  const username = req.body.username;
+
+  var sql = "UPDATE users SET pity = pity + 1, money = money - 1 WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("updated pity + pulls");
+    return res.status(200).send("Pity Update successful.");
+  });
+}); 
+
+app.put("/tenPull", async(req,res) => {
+  const username = req.body.username;
+  var sql = "UPDATE users SET pity = pity + 10, money = money - 10 WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("updated pity + pulls");
+    return res.status(200).send("Pity Update successful.");
+  });
+})
+
+app.put("/resetPity", async(req,res) => {
+  const username = req.body.username;
+  var sql = "UPDATE users SET pity = 0 WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("Reset pity");
+    return res.status(200).send("Pity Update successful.");
+  });
+})
+
 app.post("/register", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;

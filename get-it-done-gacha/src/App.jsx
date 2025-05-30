@@ -17,12 +17,16 @@ This program is free software: you can redistribute it and/or modify
 
 ========================================================== */
 
+
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
 import Dashboard from "./pages/dashboard.jsx";
+
+
+import Gacha from './pages/gacha.jsx';
 import SearchForFriend from './pages/searchforfriend.jsx';
 import Profile from './pages/profile.jsx';
 import Directory from './pages/directory.jsx';
@@ -49,9 +53,11 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/directory" element={<Directory />} />
+                <Route path="/gacha" element={<Gacha />} />
             </Routes>
         </Router>
     );
+
 }
 
 export default App;

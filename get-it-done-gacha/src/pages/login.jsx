@@ -63,6 +63,7 @@ function Login() {
       if (response.data.loggedIn === true) {
         console.log("Logged In: " + response.data.user.username);
         navigate("/dashboard");
+
       }
     });
   }, []); // Empty dependency array means this runs once on component mount
