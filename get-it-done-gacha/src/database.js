@@ -42,10 +42,21 @@ let connection = mysql.createConnection(config);
 
 connection.connect(function(err) {
   if (err) {
-    console.error('Error connecting: ' + err.stack);
+    console.error('Error connecting to database:', err.stack);
     return;
   }
-  console.log('Connected as thread id: ' + connection.threadId);
+  console.log('Successfully connected to database as thread id:', connection.threadId);
+});
+
+// Add error handler for the connection
+connection.on('error', function(err) {
+  console.error('Database connection error:', err);
+  if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('Attempting to reconnect to database...');
+    connection = mysql.createConnection(config);
+  } else {
+    throw err;
+  }
 });
 
 // module.exports = connection;

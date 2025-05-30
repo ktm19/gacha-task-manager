@@ -25,7 +25,6 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
-
 function Login() {
   const navigate = useNavigate();
   

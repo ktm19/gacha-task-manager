@@ -10,6 +10,9 @@ axios.defaults.baseURL = 'http://localhost:8080';
 function Profile() {
   const [username, setUsername] = useState("");
   const [friendsList, setFriendsList] = useState([]);
+  const [userStatus, setUserStatus] = useState("");
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const maxStatusLength = 100;
 
   const containerStyle = {
     backgroundImage: 'url(/bliss_background.jpg)',
@@ -49,46 +52,119 @@ function Profile() {
     });
   }
 
+  const updateStatus = (newStatus) => {
+    if (!username) {
+      console.log('[DEBUG] Cannot update status: no username');
+      return;
+    }
+    
+    if (newStatus.length > maxStatusLength) {
+      console.log('[DEBUG] Status too long:', newStatus.length);
+      return;
+    }
+    
+    console.log('[DEBUG] Sending status update. Username:', username, 'Status:', newStatus);
+    
+    axios.post("/updateStatus", {
+      username: username,
+      status: newStatus
+    }, {
+      withCredentials: true
+    }).then((response) => {
+      console.log('[DEBUG] Status update response:', response.data);
+      const updatedStatus = response.data.status;
+      console.log('[DEBUG] Setting status to:', updatedStatus);
+      setUserStatus(updatedStatus);
+    }).catch((error) => {
+      console.error('[DEBUG] Status update error:', error);
+      if (error.response) {
+        console.error('[DEBUG] Server error:', error.response.data);
+      } else if (error.request) {
+        console.error('[DEBUG] No server response');
+      } else {
+        console.error('[DEBUG] Request failed:', error.message);
+      }
+    });
+  };
+
+  const fetchUserStatus = (username) => {
+    if (!username) {
+      console.log('[DEBUG] Cannot fetch status: no username');
+      return;
+    }
+    
+    console.log('[DEBUG] Fetching status for user:', username);
+    
+    axios.get("/getUserStatus", {
+      params: { username },
+      withCredentials: true
+    }).then((response) => {
+      console.log('[DEBUG] Status fetch response:', response.data);
+      const fetchedStatus = response.data.status;
+      console.log('[DEBUG] Setting fetched status:', fetchedStatus);
+      setUserStatus(fetchedStatus || '');
+    }).catch((error) => {
+      console.error('[DEBUG] Status fetch error:', error);
+      if (error.response) {
+        console.error('[DEBUG] Server error:', error.response.data);
+      } else if (error.request) {
+        console.error('[DEBUG] No server response');
+      } else {
+        console.error('[DEBUG] Request failed:', error.message);
+      }
+      setUserStatus('');
+    });
+  };
+
   useEffect(() => {
-    if (username != "") {
+    console.log('[DEBUG] Profile component mounted');
+    
+    if (username) {
+      console.log('[DEBUG] Username available:', username);
       setFriendsList([]);
+      fetchUserStatus(username);
       return;
     }
 
+    console.log('[DEBUG] Checking login status');
     axios.get("/login", { 
       withCredentials: true 
     }).then((response) => {
+      console.log('[DEBUG] Login response:', response.data);
       if (response.data.loggedIn === true) {
-        console.log("Logged In: " + response.data.user.username);
         const user = response.data.user.username;
-        setUsername(response.data.user.username);
+        console.log('[DEBUG] Setting username to:', user);
+        setUsername(user);
+        fetchUserStatus(user);
 
-        if (user == "") return;
+        if (!user) {
+          console.log('[DEBUG] No username in login response');
+          return;
+        }
 
         axios.get("/getFriends?username=" + user).then((response) => {
-          // console.log(response.data);
           const newFriendsList = [];
           for (let i = 0; i < response.data.length; i++) {
-              newFriendsList.push(<button key = {i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}><li key={i}>{(response.data)[i]["name"]}</li></button>);
+              newFriendsList.push(<button key={i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}><li key={i}>{(response.data)[i]["name"]}</li></button>);
           }
           setFriendsList(newFriendsList);
         }).catch((error) => {
           if (error.response) {
             console.log(error.response.data);
           } else if (error.request) {
-            alert("No response from server.");
             console.log("No response from server.");
           } else {
-            alert("A critical error has occured :(");
             console.log("Axios error:", error.message);
           }
         });
       }
     });
-
   }, []);
 
-
+  // Add an effect to update status when username changes
+  useEffect(() => {
+    fetchUserStatus(username);
+  }, [username]);
 
   return (
     <div className="profile-container" style={containerStyle}>
@@ -105,7 +181,26 @@ function Profile() {
           Status
         </span>
         <div className="status-content">
-          Status placeholder
+          <textarea
+            value={userStatus}
+            onChange={(e) => {
+              if (e.target.value.length <= maxStatusLength) {
+                setUserStatus(e.target.value);
+                updateStatus(e.target.value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.target.blur();
+              }
+            }}
+            className="status-textarea"
+            placeholder={userStatus ? "" : "What's on your mind?"} /*only show placeholder if no status exists*/
+          />
+          <div className="character-counter">
+            {userStatus.length}/{maxStatusLength}
+          </div>
         </div>
       </div>
 

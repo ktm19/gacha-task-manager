@@ -84,9 +84,14 @@
 .status-label {
     position: absolute;
     left: 16px;
+    top: 47%;
+    transform: translateY(-50%);
     font-size: calc(10vh);
     font-weight: 600;
     color: #4b5563;
+    opacity: 0.3;
+    pointer-events: none;
+    user-select: none;
 }
 
 .status-content {
@@ -95,7 +100,45 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+}
+
+.status-text {
+    font-size: 1.2rem;
     color: #4b5563;
+    text-align: center;
+}
+
+.status-textarea {
+    width: 60%;
+    height: 1.5em;
+    margin-left: calc(10vh + 32px);
+    padding: 12px;
+    border: none;
+    font-size: 1.2rem;
+    color: #4b5563;
+    resize: none;
+    outline: none;
+    text-align: center;
+    background: transparent;
+    line-height: 1.5;
+    display: block;
+    position: relative;
+    top: 17%;
+    transform: translateY(-50%);
+}
+
+.status-textarea::placeholder {
+    text-align: center;
+    color: #9ca3af;
+}
+
+.character-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    font-size: 0.875rem;
+    color: #9ca3af;
 }
 
 .bottom-section {
