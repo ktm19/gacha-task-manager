@@ -16,11 +16,21 @@ This program is free software: you can redistribute it and/or modify
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ========================================================== */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: none !important;  /* Remove max-width constraint */
+  width: 100% !important;
+  height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden;
   text-align: center;
   --blue-gradient: linear-gradient(10deg, #3556e6, #d175ff);
 }

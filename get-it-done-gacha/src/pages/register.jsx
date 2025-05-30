@@ -20,16 +20,18 @@ This program is free software: you can redistribute it and/or modify
 import React, { useState, useEffect } from 'react';
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
-
+/*
 function submitRegister() {
   
 }
-
+*/
 function Register() {
+  const navigate = useNavigate();
+
   const register = (un, pw) => {
     axios.post("/register", {
       username: un, 
@@ -51,15 +53,18 @@ function Register() {
     });
   };
 
-  useEffect(()=> {
-    console.log("Use effect test");
-    axios.get("/login").then((response) => {
-      console.log(response);
-      if (response.data.loggedInd == true) {
-        console.log(response.data.user[0].username);
+  useEffect(() => {
+    axios.get("/login", { 
+      withCredentials: true 
+    }).then((response) => {
+      // console.log(response);
+      // console.log("Response Test");
+      if (response.data.loggedIn === true) {
+        console.log("Logged In: " + response.data.user.username);
+        navigate("/dashboard");
       }
-    })
-  })
+    });
+  }, []);
 
   console.log("Register page loaded");
   return (

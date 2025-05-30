@@ -20,20 +20,26 @@ This program is free software: you can redistribute it and/or modify
 import React, { useState, useEffect } from 'react';
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
-
 function Login() {
+  const navigate = useNavigate();
+  
   const login = (un, pw) => {
     axios.post("/login", {
       username: un, 
       password: pw,
+    },
+    {
+      withCredentials: true
     }).then((response) => {
       alert("Login successful! :)")
-      console.log(response);
+      // console.log(response);
+      // console.log("Logged In");
+      navigate("/dashboard");
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
@@ -48,15 +54,19 @@ function Login() {
     });
   };
 
-  useEffect(()=> {
-    console.log("Use effect test");
-    axios.get("/login").then((response) => {
-      console.log(response);
-      if (response.data.loggedIn == true) {
-        console.log(response.data.user[0].username);
+  useEffect(() => {
+    axios.get("/login", { 
+      withCredentials: true 
+    }).then((response) => {
+      // console.log(response);
+      // console.log("Response Test");
+      if (response.data.loggedIn === true) {
+        console.log("Logged In: " + response.data.user.username);
+        navigate("/dashboard");
+
       }
-    })
-  })
+    });
+  }, []); // Empty dependency array means this runs once on component mount
 
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
@@ -76,7 +86,15 @@ function Login() {
             Register here
           </Link>
         </p>
-        </div>
+      </div>
+      <div className="mt-4">
+        <p className="text-sm">
+          View the directory{' '}
+          <Link to="/directory" className="text-blue-500 hover:underline">
+            for testing
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,189 @@
+.profile-container {
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 24px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    color: #4b5563;
+}
+
+/* Add an overlay to ensure content remains readable */
+.profile-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    z-index: 1;
+}
+
+/* Ensure content appears above the overlay */
+.profile-container > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Color Classes */
+.text-blue {
+    color: #2563eb;
+}
+
+.text-red {
+    color: #dc2626;
+}
+
+.text-green {
+    color: #16a34a;
+}
+
+.text-purple {
+    color: #7c3aed;
+}
+
+.text-gray {
+    color: #4b5563;
+}
+
+.username {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 24px;
+    color: #4b5563;
+}
+
+.username-link {
+    color: #4b5563;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.username-link:hover {
+    color: #374151;
+    text-decoration: underline;
+}
+
+.status-box {
+    position: relative;
+    width: 100%;
+    height: 20vh;
+    margin-bottom: 32px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    color: #4b5563;
+}
+
+.status-label {
+    position: absolute;
+    left: 16px;
+    top: 47%;
+    transform: translateY(-50%);
+    font-size: calc(10vh);
+    font-weight: 600;
+    color: #4b5563;
+    opacity: 0.3;
+    pointer-events: none;
+    user-select: none;
+}
+
+.status-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.status-text {
+    font-size: 1.2rem;
+    color: #4b5563;
+    text-align: center;
+}
+
+.status-textarea {
+    width: 60%;
+    height: 1.5em;
+    margin-left: calc(10vh + 32px);
+    padding: 12px;
+    border: none;
+    font-size: 1.2rem;
+    color: #4b5563;
+    resize: none;
+    outline: none;
+    text-align: center;
+    background: transparent;
+    line-height: 1.5;
+    display: block;
+    position: relative;
+    top: 17%;
+    transform: translateY(-50%);
+}
+
+.status-textarea::placeholder {
+    text-align: center;
+    color: #9ca3af;
+}
+
+.character-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+
+.bottom-section {
+    display: flex;
+    gap: 24px;
+    height: 65vh;
+}
+
+.section {
+    flex: 1;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: left;
+    color: #4b5563;
+}
+
+.section-content {
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    height: 100%;
+}
+
+.shelf-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    height: 100%;
+}
+
+.shelf-item {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5563;
+}
+
+.friends-list {
+    text-align: center;
+    color: #4b5563;
+} 
