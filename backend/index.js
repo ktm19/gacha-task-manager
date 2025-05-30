@@ -105,19 +105,27 @@ app.put("/pull", async (req, res) => {
   });
 }); 
 
-// app.put("/updatePulls", async (req, res) => {
-//   const username = req.body.username;
-//   const pulls = req.body.pulls;
+app.put("/tenPull", async(req,res) => {
+  const username = req.body.username;
+  var sql = "UPDATE users SET pity = pity + 10, money = money - 10 WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("updated pity + pulls");
+    return res.status(200).send("Pity Update successful.");
+  });
+})
 
-//   var sql = "UPDATE users SET money = '" + pulls + "' WHERE username = '" + username + "'";
-//   //console.log(sql);
-//   connection.query(sql, function(err, result) {
-//     if (err) throw err;
-//     console.log("updated pulls:" + pulls);
-//     return res.status(200).send("Update Pulls successful.");
-//   });
-// }); 
-
+app.put("/resetPity", async(req,res) => {
+  const username = req.body.username;
+  var sql = "UPDATE users SET pity = 0 WHERE username = '" + username + "'";
+  //console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    console.log("Reset pity");
+    return res.status(200).send("Pity Update successful.");
+  });
+})
 
 app.post("/register", async (req, res) => {
   const username = req.body.username;

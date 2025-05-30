@@ -22,24 +22,28 @@ const newspaper = {
       transform: "scale(0) rotate(-720deg)",
       opacity: 0,
       transition: {
-        duration: 0.3,
+        duration: 0.5,
       },
     },
+    // exit: {
+    //   y: "100vh",
+    //   opacity: 0,
+    // },
   };
 
 const Modal = ({ handleClose, text }) => {
-
+    //TO DO. change className gradient based on rarity
     return (
       <Backdrop onClick={handleClose}>
           <motion.div
             onClick={(e) => e.stopPropagation()}  
-            className="modal orange-gradient"
+            className="modal blue-gradient"
             variants={newspaper}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
-            <p>{text}</p>
+            <p>{text[0]}</p>
             <button onClick={handleClose}>Close</button>
           </motion.div>
       </Backdrop>

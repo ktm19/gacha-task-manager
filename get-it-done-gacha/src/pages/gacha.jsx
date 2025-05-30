@@ -22,19 +22,33 @@ import '../App.css'
 import axios from 'axios';
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from '../components/Modal/index';
+import ModalChain from '../components/ModalChain/index'
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
 function Gacha() {
-    const [modalOpen, setModalOpen] = useState(false);
-    const close = () => setModalOpen(false);
+    
     const open = () => setModalOpen(true);
 
-    const [item, setItem] = useState("");
+    const [modalChainOpen, setModalChainOpen] = useState(false);
+    const closeChain = () => setModalChainOpen(false);
+    const openChain = () => setModalChainOpen(true);
+
+    const [item, setItem] = useState([""]);
     const [pulls, setPulls] = useState(180);
     const [pity, setPity] = useState(0);
     const [inventory, updateInventory] = useState([0, 0, 0]);
     var user = "test";
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const close = () => {
+        setModalOpen(false);
+        if (item.length > 1) {
+            console.log("chain");
+            setItem(item.slice(1));
+            open();
+        }
+    };
 
     function syncDB() {
         axios.get("/searchForUser", {
@@ -59,96 +73,32 @@ function Gacha() {
             }
         });
     }
-    function singlePull() {
-        if (pulls > 0)
-            pull(() => {});
-        else
-            alert("Not enough pulls!");
-    }
+    // function singlePull() {
+    //     if (pulls > 0)
+    //         pull(() => { });
+    //     else
+    //         alert("Not enough pulls!");
+    // }
 
     function tenPull() {
-        if (pulls >= 10) {
-            pull(pull(pull(pull(pull))));
-            //alert("TEN PULL");
-            // for (var i = 0; i < 10; i++) {
-            //     pull();
-            // }
-        } else
+        if (pulls < 10) {
             alert("Not enough pulls for a x10 pull!");
-    }
-
-
-
-    function pull(completion) {
-        /** GATCHA RATES:
-         *  85%:  3*
-         *  13%:  4*
-         *  2%    5*
-         */
-        var roll = Math.random() * 100;
-        console.log(roll);
-        if (roll < 2) {
-            //five star
-            setItem("5 star");
-            console.log("5 star");
-        } else if (roll < 15) {
-            //four star
-            setItem("4 star");
-            console.log("4 star");
-        } else {
-            //three star
-            setItem("3 star");
-            console.log("3 star");
+            return;
         }
-        //setPulls(pulls => pulls - 1);
-        //setPity(pity => pity + 1);
-        if (modalOpen)
-            close();
-        else
-            open();
-
-        // axios.put("/updatePity", {
-        //     username: user,
-        //     pity: pity + 1,
-        // }).then((response) => {
-        //     console.log("success: " + pity);
-        // }).catch((error) => {
-        //     if (error.response) {
-        //         alert(error.response.data);
-        //         console.log(error.response.data);
-        //     } else if (error.request) {
-        //         alert("No response from server.");
-        //         console.log("No response from server.");
-        //     } else {
-        //         alert("A critical error has occured :(");
-        //         console.log("Axios error:", error.message);
-        //     }
-        // });
-
-        // axios.put("/updatePulls", {
-        //     username: user,
-        //     pulls: pulls - 1,
-        // }).then((response) => {
-        //     console.log(pulls);
-        // }).catch((error) => {
-        //     if (error.response) {
-        //         alert(error.response.data);
-        //         console.log(error.response.data);
-        //     } else if (error.request) {
-        //         alert("No response from server.");
-        //         console.log("No response from server.");
-        //     } else {
-        //         alert("A critical error has occured :(");
-        //         console.log("Axios error:", error.message);
-        //     }
-        // });
-        
-        axios.put("/pull", {
+        axios.put("/tenPull", {
             username: user,
         }).then((response) => {
-            if (completion) {
-                completion();
-            }
+
+            syncDB();
+            var pullArray = new Array(10);
+            pullArray = pullArray.fill(0).map(() => Math.random() * 100);
+            //note map to rarity later
+            setItem(pullArray);
+            console.log(pullArray);
+            if (modalOpen)
+                close();
+            else
+                open();
             console.log("updating success");
         }).catch((error) => {
             if (error.response) {
@@ -162,8 +112,62 @@ function Gacha() {
                 console.log("Pulling:  Axios error:", error.message);
             }
         });
+    }
 
-        syncDB();
+    function roll() {
+        
+    }
+
+
+    function singlePull() {
+        if (pulls <= 0) {
+            alert("Not enough pulls!");
+            return;
+        }
+
+        /** GATCHA RATES:
+         *  85%:  3*
+         *  13%:  4*
+         *  2%    5*
+         */
+        var roll = Math.random() * 100;
+        console.log(roll);
+        if (roll < 2) {
+            //five star
+            setItem(["5 star"]);
+            console.log("5 star");
+        } else if (roll < 15) {
+            //four star
+            setItem(["4 star"]);
+            console.log("4 star");
+        } else {
+            //three star
+            setItem(["3 star"]);
+            console.log("3 star");
+        }
+
+        if (modalOpen)
+            close();
+        else
+            open();
+
+        axios.put("/pull", {
+            username: user,
+        }).then((response) => {
+            syncDB();
+            console.log("updating success");
+        }).catch((error) => {
+            if (error.response) {
+                alert(error.response.data);
+                console.log(error.response.data);
+            } else if (error.request) {
+                alert("Pulling: No response from server.");
+                console.log("Pulling: No response from server.");
+            } else {
+                alert("Pulling: A critical error has occured :(");
+                console.log("Pulling:  Axios error:", error.message);
+            }
+        });
 
     }
 
@@ -180,6 +184,7 @@ function Gacha() {
             <motion.button onClick={tenPull} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x10 Pull
             </motion.button>
+
             <AnimatePresence
                 // Disable any initial animations on children that
                 // are present when the component is first rendered
@@ -191,8 +196,7 @@ function Gacha() {
                 // Fires when all exiting nodes have completed animating out
                 onExitComplete={() => null}
             >
-                
-                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} text = {item}/>}
+                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} text={item} />}
             </AnimatePresence>
 
         </b>
