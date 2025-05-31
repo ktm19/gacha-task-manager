@@ -22,6 +22,7 @@ import '../App.css'
 import TextFieldSubmit from '../textFieldSubmit.jsx';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { a } from 'framer-motion/client';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -39,6 +40,7 @@ function Login() {
       alert("Login successful! :)")
       // console.log(response);
       // console.log("Logged In");
+      localStorage.setItem("username", un);
       navigate("/dashboard");
     }).catch((error) => {
       if (error.response) {
@@ -53,6 +55,12 @@ function Login() {
       }
     });
   };
+
+  const logout = () => {
+    localStorage.removeItem("username");
+    navigate("/");
+    alert("Logged out successfully!");
+  }
 
   useEffect(() => {
     axios.get("/login", { 
@@ -84,14 +92,6 @@ function Login() {
           Don't have an account?{' '}
           <Link to="/register" className="text-blue-500 hover:underline">
             Register here
-          </Link>
-        </p>
-      </div>
-      <div className="mt-4">
-        <p className="text-sm">
-          View the directory{' '}
-          <Link to="/directory" className="text-blue-500 hover:underline">
-            for testing
           </Link>
         </p>
       </div>
