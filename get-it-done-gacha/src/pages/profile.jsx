@@ -6,12 +6,13 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.withCredentials = true;
 
 function Profile() {
   const [username, setUsername] = useState("");
   const [friendsList, setFriendsList] = useState([]);
   const [userStatus, setUserStatus] = useState("");
-  const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const [error, setError] = useState("");
   const maxStatusLength = 100;
 
   const containerStyle = {
@@ -22,185 +23,139 @@ function Profile() {
   };
 
   const handleClick = (username) => {
-    console.log("handleClick entered");
     setUsername(username);
     setFriendsList([]);
     getFriendsList(username);
+    fetchUserStatus(username);
   }
 
   const getFriendsList = (username) => {
-    console.log("entered getFriendsList");
-    if (username == "") return;
+    if (!username) return;
 
-    axios.get("/getFriends?username=" + username).then((response) => {
-      console.log(response.data);
-      const newFriendsList = [];
-      for (let i = 0; i < response.data.length; i++) {
-          newFriendsList.push(<button key = {i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}><li key={i}>{(response.data)[i]["name"]}</li></button>);
-      }
-      setFriendsList(newFriendsList);
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response.data);
-      } else if (error.request) {
-        alert("No response from server.");
-        console.log("No response from server.");
-      } else {
-        alert("A critical error has occured :(");
-        console.log("Axios error:", error.message);
-      }
-    });
+    axios.get(`/getFriends?username=${username}`)
+      .then((response) => {
+        const newFriendsList = [];
+        for (let i = 0; i < response.data.length; i++) {
+          newFriendsList.push(
+            <button key={i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}>
+              <li key={i}>{(response.data)[i]["name"]}</li>
+            </button>
+          );
+        }
+        setFriendsList(newFriendsList);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch friends list:', error);
+        if (error.response?.status === 404) {
+          setFriendsList([]);
+        }
+      });
   }
 
-  const updateStatus = (newStatus) => {
-    if (!username) {
-      console.log('[DEBUG] Cannot update status: no username');
-      return;
-    }
+  const fetchUserStatus = async (username) => {
+    if (!username) return;
     
-    if (newStatus.length > maxStatusLength) {
-      console.log('[DEBUG] Status too long:', newStatus.length);
-      return;
-    }
-    
-    console.log('[DEBUG] Sending status update. Username:', username, 'Status:', newStatus);
-    
-    axios.post("/updateStatus", {
-      username: username,
-      status: newStatus
-    }, {
-      withCredentials: true
-    }).then((response) => {
-      console.log('[DEBUG] Status update response:', response.data);
-      const updatedStatus = response.data.status;
-      console.log('[DEBUG] Setting status to:', updatedStatus);
-      setUserStatus(updatedStatus);
-    }).catch((error) => {
-      console.error('[DEBUG] Status update error:', error);
-      if (error.response) {
-        console.error('[DEBUG] Server error:', error.response.data);
-      } else if (error.request) {
-        console.error('[DEBUG] No server response');
-      } else {
-        console.error('[DEBUG] Request failed:', error.message);
-      }
-    });
-  };
-
-  const fetchUserStatus = (username) => {
-    if (!username) {
-      console.log('[DEBUG] Cannot fetch status: no username');
-      return;
-    }
-    
-    console.log('[DEBUG] Fetching status for user:', username);
-    
-    axios.get("/getUserStatus", {
-      params: { username },
-      withCredentials: true
-    }).then((response) => {
-      console.log('[DEBUG] Status fetch response:', response.data);
-      const fetchedStatus = response.data.status;
-      console.log('[DEBUG] Setting fetched status:', fetchedStatus);
-      setUserStatus(fetchedStatus || '');
-    }).catch((error) => {
-      console.error('[DEBUG] Status fetch error:', error);
-      if (error.response) {
-        console.error('[DEBUG] Server error:', error.response.data);
-      } else if (error.request) {
-        console.error('[DEBUG] No server response');
-      } else {
-        console.error('[DEBUG] Request failed:', error.message);
-      }
+    try {
+      console.log('Fetching status for user:', username);
+      const response = await axios.get(`/getUserStatus`, { params: { username } });
+      console.log('Status response:', response.data);
+      setUserStatus(response.data.status || '');
+      setError('');
+    } catch (error) {
+      console.error('Failed to fetch user status:', error);
       setUserStatus('');
-    });
+      if (error.response?.status === 404) {
+        //setError('User not found');
+      } else {
+        //setError('Failed to load status');
+      }
+    }
+  };
+
+  const updateStatus = async (newStatus) => {
+    if (!username) return;
+    
+    try {
+      console.log('Updating status for user:', username, 'New status:', newStatus);
+      const response = await axios.put(`/updateUserStatus`, { status: newStatus }, { params: { username } });
+      console.log('Update response:', response.data);
+      setUserStatus(response.data.status);
+      setError('');
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      if (error.response?.status === 404) {
+        setError('User not found');
+      } else {
+        setError('Failed to update status');
+      }
+      // Revert to previous status on error
+      fetchUserStatus(username);
+    }
   };
 
   useEffect(() => {
-    console.log('[DEBUG] Profile component mounted');
-    
-    if (username) {
-      console.log('[DEBUG] Username available:', username);
-      setFriendsList([]);
-      fetchUserStatus(username);
-      return;
-    }
-
-    console.log('[DEBUG] Checking login status');
-    axios.get("/login", { 
-      withCredentials: true 
-    }).then((response) => {
-      console.log('[DEBUG] Login response:', response.data);
-      if (response.data.loggedIn === true) {
-        const user = response.data.user.username;
-        console.log('[DEBUG] Setting username to:', user);
-        setUsername(user);
-        fetchUserStatus(user);
-
-        if (!user) {
-          console.log('[DEBUG] No username in login response');
-          return;
+    axios.get("/login")
+      .then((response) => {
+        if (response.data.loggedIn === true) {
+          const user = response.data.user.username;
+          console.log('Logged in user:', user);
+          setUsername(user);
+          
+          if (user) {
+            fetchUserStatus(user);
+            getFriendsList(user);
+          }
         }
-
-        axios.get("/getFriends?username=" + user).then((response) => {
-          const newFriendsList = [];
-          for (let i = 0; i < response.data.length; i++) {
-              newFriendsList.push(<button key={i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}><li key={i}>{(response.data)[i]["name"]}</li></button>);
-          }
-          setFriendsList(newFriendsList);
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data);
-          } else if (error.request) {
-            console.log("No response from server.");
-          } else {
-            console.log("Axios error:", error.message);
-          }
-        });
-      }
-    });
+      })
+      .catch((error) => {
+        console.error('Failed to check login status:', error);
+        setError('Failed to check login status');
+      });
   }, []);
-
-  // Add an effect to update status when username changes
-  useEffect(() => {
-    fetchUserStatus(username);
-  }, [username]);
 
   return (
     <div className="profile-container" style={containerStyle}>
       {/* Username in top left */}
       <div className="username">
-        <h2><Link to={`/dashboard`} className="username-link">
-          {username || "Guest"}
-        </Link></h2>
+        <h2>
+          <Link to={`/dashboard`} className="username-link">
+            {username || "Guest"}
+          </Link>
+        </h2>
       </div>
 
       {/* Status Box */}
       <div className="status-box">
-        <span className="status-label">
-          Status
-        </span>
+        <span className="status-label">Status</span>
         <div className="status-content">
-          <textarea
-            value={userStatus}
-            onChange={(e) => {
-              if (e.target.value.length <= maxStatusLength) {
-                setUserStatus(e.target.value);
-                updateStatus(e.target.value);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                e.target.blur();
-              }
-            }}
-            className="status-textarea"
-            placeholder={userStatus ? "" : "What's on your mind?"} /*only show placeholder if no status exists*/
-          />
-          <div className="character-counter">
-            {userStatus.length}/{maxStatusLength}
-          </div>
+          {username ? (
+            <>
+              <textarea
+                value={userStatus}
+                onChange={(e) => {
+                  const newStatus = e.target.value;
+                  if (newStatus.length <= maxStatusLength) {
+                    setUserStatus(newStatus);
+                  }
+                }}
+                onBlur={() => updateStatus(userStatus)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    e.target.blur();
+                  }
+                }}
+                className="status-textarea"
+                placeholder="What's on your mind?"
+              />
+              <div className="character-counter">
+                {userStatus.length}/{maxStatusLength}
+              </div>
+              {error && <div className="error-message">{error}</div>}
+            </>
+          ) : (
+            <div className="guest-status">Login to set your status</div>
+          )}
         </div>
       </div>
 
@@ -211,7 +166,6 @@ function Profile() {
           <h2 className="section-title">My Shelf</h2>
           <div className="section-content">
             <div className="shelf-grid">
-              {/* 4 placeholder squares */}
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="shelf-item">
                   Shelf Item {i}

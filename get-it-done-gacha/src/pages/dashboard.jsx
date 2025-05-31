@@ -1,110 +1,93 @@
-import { useState, useEffect } from 'react';
-import './Dashboard.css';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import '../styles/dashboard.css';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+const Dashboard = () => {
+  const [tasks, setTasks] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [totalScore, setTotalScore] = useState(0);
 
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('tasks');
-  const [username, setUsername] = useState("");
+  const generateRandomPoints = () => Math.floor(Math.random() * 10) / 100;
 
-  useEffect(() => {
-    axios.get("/login", { 
-      withCredentials: true 
-    }).then((response) => {
-      // console.log(response);
-      // console.log("Response Test");
-      if (response.data.loggedIn === true) {
-        console.log("Logged In: " + response.data.user.username);
-        setUsername(response.data.user.username);
-      }
-    });
-  }, []);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    const newTask = {
+      id: Date.now(),
+      text: inputValue.trim(),
+      points: generateRandomPoints(),
+      state: 'entering'
+    };
+
+    setTasks(prev => [...prev, newTask]);
+    setInputValue('');
+
+    setTimeout(() => {
+      setTasks(prev => prev.map(t => 
+        t.id === newTask.id ? {...t, state: 'visible'} : t
+      ));
+    }, 10);
+  };
+
+  const handleComplete = (id) => {
+    setTasks(prev => prev.map(t => 
+      t.id === id ? {...t, state: 'exiting'} : t
+    ));
+    
+    setTimeout(() => {
+      const completedTask = tasks.find(t => t.id === id);
+      setTotalScore(prev => prev + completedTask.points);
+      setTasks(prev => prev.filter(t => t.id !== id));
+    }, 300);
+  };
 
   return (
     <div className="dashboard-container">
-      {/* Header Section */}
-      <div className="dashboard-header">
-        <Link to={`/profile`} className="username-link">
-          <h2><span className="text-purple">
-            {`${username || "Guest"}'${username && !username.endsWith('s') ? 's' : ''} Dashboard`}
-          </span>
-          </h2>
-        </Link>
-      </div>
-
-      {/* Content Section */}
-      <div className="dashboard-content">
-        <div className="window-container">
-          {/* Tab Buttons */}
-          <div className="tabs-bar">
-            <button
-              onClick={() => setActiveTab('tasks')}
-              className={activeTab === 'tasks' ? 'active-tab' : ''}
-            >
-              Tasks
-            </button>
-            <button
-              onClick={() => setActiveTab('habits')}
-              className={activeTab === 'habits' ? 'active-tab' : ''}
-            >
-              Habits
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div className="tab-content">
-            {activeTab === 'tasks' ? (
-              <div className="tasks-tab">
-                <div className="input-button-container">
-                    <input 
-                    type="text" 
-                    className="task-input-field" 
-                    placeholder="Enter task" 
-                    />
-                    <button className="boom-button">boom</button>
-                </div>
-                <div className="tasks-list">
-                    <Task text="text1eeeeeeeeeeeeeeeee" reward={1.0} />
-                    <Task text="text2" reward={2.0} />
-                    <Task text="text3" reward={3.0} />
-                </div>
-              </div>
-            ) : (
-              <div className="habits-tab">
-                <h2>Habit Tracker</h2>
-                <div className="habits-grid">
-                  {[1, 2, 3, 4, 5, 6].map((item) => (
-                    <div key={item} className="habit-placeholder">
-                      <div className="placeholder-line"></div>
-                      <div className="placeholder-line-short"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+      <header className="dashboard-header">
+        <h1 className="title">Tasks</h1>
+        <div className="score-display">
+          <span className="score-label">Total Pulls:</span>
+          <span className="score-value">{totalScore.toFixed(2)}</span>
         </div>
+      </header>
+
+      <form onSubmit={handleSubmit} className="input-container">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Enter new task..."
+          className="task-input"
+          maxLength={60}
+        />
+        <button type="submit" className="add-button">
+          Add Task
+        </button>
+      </form>
+
+      <div className="tasks-container">
+        {tasks.map(task => (
+          <div 
+            key={task.id}
+            className={`task-item ${task.state}`}
+          >
+            <div className="task-content">
+              <span className="task-text">{task.text}</span>
+              <span className="task-points">{task.points.toFixed(2)}</span>
+            </div>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                onChange={() => handleComplete(task.id)}
+                className="hidden-checkbox"
+              />
+              <span className="custom-checkbox"></span>
+            </label>
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
 
-
-function Task({ text, reward }) {
-
-  return (
-    <div className="task-container">
-      <div className="task-content">
-        <button className="task-checkbox"></button>
-        <div className="multi-line-text">{text}</div>
-        <div className="reward-section">
-          <div className="reward-text">{reward}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
+export default Dashboard;
