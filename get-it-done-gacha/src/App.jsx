@@ -32,6 +32,7 @@ import Layout from './components/Layout/layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import axios from 'axios';
 
+// Configure axios defaults
 axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true;
 

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import '../App.css';
 import '../styles/Profile.css';
 //import TextFieldSubmit from '../textFieldSubmit.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
 function Profile() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [friendsList, setFriendsList] = useState([]);
   const [userStatus, setUserStatus] = useState("");
@@ -32,7 +33,9 @@ function Profile() {
   const getFriendsList = (username) => {
     if (!username) return;
 
-    axios.get(`/getFriends?username=${username}`)
+    axios.get(`/getFriends?username=${username}`, {
+      withCredentials: true
+    })
       .then((response) => {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
@@ -57,7 +60,10 @@ function Profile() {
     
     try {
       console.log('Fetching status for user:', username);
-      const response = await axios.get(`/getUserStatus`, { params: { username } });
+      const response = await axios.get(`/getUserStatus`, { 
+        params: { username },
+        withCredentials: true 
+      });
       console.log('Status response:', response.data);
       setUserStatus(response.data.status || '');
       setError('');
@@ -77,7 +83,13 @@ function Profile() {
     
     try {
       console.log('Updating status for user:', username, 'New status:', newStatus);
-      const response = await axios.put(`/updateUserStatus`, { status: newStatus }, { params: { username } });
+      const response = await axios.put(`/updateUserStatus`, 
+        { status: newStatus }, 
+        { 
+          params: { username },
+          withCredentials: true 
+        }
+      );
       console.log('Update response:', response.data);
       setUserStatus(response.data.status);
       setError('');
@@ -93,25 +105,19 @@ function Profile() {
     }
   };
 
+  // fixed 12:30pm 5/31/25 YAYYYY
+  // fix involved using the same login logic
   useEffect(() => {
-    axios.get("/login")
-      .then((response) => {
-        if (response.data.loggedIn === true) {
-          const user = response.data.user.username;
-          console.log('Logged in user:', user);
-          setUsername(user);
-          
-          if (user) {
-            fetchUserStatus(user);
-            getFriendsList(user);
-          }
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to check login status:', error);
-        setError('Failed to check login status');
-      });
-  }, []);
+    const username = localStorage.getItem('username');
+    if (!username) {
+      setUsername("");
+      return;
+    }
+    
+    setUsername(username);
+    fetchUserStatus(username);
+    getFriendsList(username);
+  }, []); // No dependencies needed since we only want this to run once on mount
 
   return (
     <div className="profile-container" style={containerStyle}>
