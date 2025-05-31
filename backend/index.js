@@ -34,8 +34,14 @@ const __dirname = join(dirname(__filename), "..");
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], //changed at 10:56AM 10/16/2023
   credentials: true,
+ /*changed at 10:56AM 10/16/2023
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cookie'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range', 'Set-Cookie'],
+  optionsSuccessStatus: 200
+  changed at 10:56AM 10/16/2023*/
 }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -47,9 +53,13 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: false,               // set to true with HTTPS
-      sameSite: 'lax',             // set to 'none' for cross-site cookies with HTTPS
-    }
+      /* changed at 11:10am 10/16/2023 ts lowkey dont work but keeping it here for reference
+      secure: false,                // keep false for local development
+      sameSite: 'none',            // required for cross-site cookie access
+      httpOnly: true,              // prevents client-side access to cookies
+       changed at 11:10am 10/16/2023 */
+    },
+    proxy: true                    // trust the reverse proxy 
   })
 )
 
@@ -295,6 +305,62 @@ app.route("/tasks/:task_id").get((req, res, next) => {
     },
   );
 });
+
+/* USER STATUS ENDPOINTS */
+
+app.get("/getUserStatus", async (req, res) => {
+  const username = req.query.username;
+
+  if (!username) {
+    return res.status(400).send("Username is required.");
+  }
+
+  try {
+    const query = "SELECT status FROM users WHERE username = ?";
+    connection.query(query, [username], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error fetching user status.");
+      }
+      if (results.length === 0) {
+        return res.status(404).send("User not found.");
+      }
+      res.status(200).json({ status: results[0].status || '' });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+app.put("/updateUserStatus", async (req, res) => {
+  const username = req.query.username;
+  const status = req.body.status;
+
+  if (!username) {
+    return res.status(400).send("Username is required.");
+  }
+
+  try {
+    const updateQuery = "UPDATE users SET status = ? WHERE username = ?";
+    connection.query(updateQuery, [status, username], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating user status.");
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).send("User not found.");
+      }
+      res.status(200).json({ status: status });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+/* USER STATUS ENDPOINTS */
+
 
 // Use port 8080 by default, unless configured differently in Google Cloud
 const port = process.env.PORT || 8080;
