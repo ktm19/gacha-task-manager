@@ -99,7 +99,7 @@ app.get("/searchForUser", async (req, res) => {
       const user = results[0];
       res.status(200).send(user);
     } else {
-      res.status(404).send("User not found :(: " + username);
+      res.status(404).send("User not found: " + username);
     }
   });
 });
@@ -209,20 +209,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/searchForUser", (req, res) => { //find user by username
-  const username = req.query.username;
-  const query = "SELECT * FROM users WHERE username = ?";
-  connection.query(query, [username], async (err, results) => {
-    if (err) throw err;
-    if (results.length > 0) {
-      const user = results[0];
-      res.status(200).send(user);
-    } else {
-      res.status(404).send("User not found :(");
-    }
-  });
-});
-
 app.get("/getFriends", (req, res) => { //find friends of given username
   const username = req.query.username;
   const query = "SELECT * FROM friends WHERE username = ?";
@@ -238,9 +224,23 @@ app.post("/addFriend", async (req, res) => {
   const friend_name = req.body.friend_name;
 
   try {
-    // TODO: do some error checking here
+    if (username == friend_name) {
+      return res.status(500).send("Cannot add yourself as a friend.");
+    }
 
-    const insertQuery = "INSERT INTO friends (username, user_id, name, friend_id) VALUES (?, 0, ?, 0)";
+    const searchQuery = "SELECT * FROM friends WHERE username = ? AND name = ?";
+    connection.query(searchQuery, [username, friend_name], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error adding friend.");
+      } 
+      if (result.length != 0) {
+        return res.status(500).send("Already added " + friend_name + " as a friend.");
+      }
+      
+    });
+
+    const insertQuery = "INSERT INTO friends (username, name) VALUES (?, ?)";
     connection.query(insertQuery, [username, friend_name], (err, result) => {
       if (err) {
         console.error(err);
@@ -267,6 +267,17 @@ app.post("/removeFriend", async (req, res) => {
 
   try {
     // TODO: do some error checking here
+
+    const searchQuery = "SELECT * FROM friends WHERE username = ? AND name = ?";
+    connection.query(searchQuery, [username, friend_name], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error removing friend.");
+      } 
+      if (result.length == 0) {
+        return res.status(500).send("You are not friends with " + friend_name + ".");
+      }
+    });
 
     const removeQuery = "DELETE FROM friends WHERE username = ? AND name = ?;"
     connection.query(removeQuery, [username, friend_name], (err, result) => {
