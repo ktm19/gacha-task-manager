@@ -37,6 +37,7 @@ function Gacha() {
     const [item, setItem] = useState([]);
     const [pulls, setPulls] = useState(0);
     const [pity, setPity] = useState(0);
+    const [returnText, setReturn] = useState("Close");
     const [rarity, setRarity] = useState(3);
     //const [inventory, updateInventory] = useState([0, 0, 0]);
     var user = "test";
@@ -45,12 +46,36 @@ function Gacha() {
     const close = () => {
         setModalOpen(false);
         if (item.length > 1) {
+            setReturn("Continue");
             console.log("chain");
             setItem(item.slice(1));
             open();
+        } else {
+            setReturn("Close");
         }
     };
 
+    function roll() {
+        /** GATCHA RATES:
+         *  85%:  3*
+         *  13%:  4*
+         *  2%    5*
+         */
+        var rand = Math.random() * 100;
+        console.log(rand);
+        var pull;
+        if (rand < 2) {
+            setRarity(5);
+            pull = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
+        } else if (rand < 14) {
+            setRarity(4);
+            pull = itemList.fourStars[Math.floor(Math.random() * itemList.fourStars.length)];
+        } else {
+            setRarity(3);
+            pull = itemList.threeStars[Math.floor(Math.random() * itemList.threeStars.length)];
+        }
+        return pull;
+    }
     function syncDB() {
         axios.get("/searchForUser", {
             params: {
@@ -86,7 +111,7 @@ function Gacha() {
 
             syncDB();
             var pullArray = new Array(10);
-            pullArray = pullArray.fill(0).map(() => Math.random() * 100);
+            pullArray = pullArray.fill(0).map(() => roll());
             //note map to rarity later
             setItem(pullArray);
             console.log(pullArray);
@@ -109,33 +134,15 @@ function Gacha() {
         });
     }
 
-
+    
 
     function singlePull() {
         if (pulls <= 0) {
             alert("Not enough pulls!");
             return;
         }
-        /** GATCHA RATES:
-         *  85%:  3*
-         *  13%:  4*
-         *  2%    5*
-         */
-        var roll = Math.random() * 100;
-        console.log(roll);
-        var wish;
-        if (roll < 2) {
-            setRarity(5);
-            wish = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
-        } else if (roll < 14) {
-            setRarity(4);
-            wish = itemList.fourStars[Math.floor(Math.random() * itemList.fourStars.length)];
-        } else {
-            setRarity(3);
-            wish = itemList.threeStars[Math.floor(Math.random() * itemList.threeStars.length)];
-        }
-        setItem(wish);
-        console.log(wish.name);
+        setItem([roll()]);
+        //console.log(wish.name);
         if (modalOpen)
             close();
         else
@@ -186,7 +193,7 @@ function Gacha() {
                 // Fires when all exiting nodes have completed animating out
                 onExitComplete={() => null}
             >
-                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} item={item} rarity={rarity} />}
+                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} item={item[0]} rarity={rarity}/>}
             </AnimatePresence>
 
         </b>

@@ -33,8 +33,8 @@ const newspaper = {
 
 const Modal = ({ handleClose, item, rarity}) => {
     //TO DO. change className gradient based on rarity
-    console.log(rarity);
-    var bg = (rarity == 4)? "modal pink-gradient" : (rarity == 5)? "modal-gold-gradient" : "modal blue-gradient";
+    console.log(item.rarity);
+    var bg = (item.rarity == 4)? "modal pink-gradient" : (item.rarity == 5)? "modal gold-gradient" : "modal blue-gradient";
     // if (rarity == 4)
     //   bg = "modal pink-gradient";
     // else
