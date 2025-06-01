@@ -31,7 +31,7 @@ const newspaper = {
     // },
   };
 
-const Modal = ({ handleClose, item, rarity}) => {
+const Modal = ({ handleClose, item, ret}) => {
     //TO DO. change className gradient based on rarity
     console.log(item.rarity);
     var bg = (item.rarity == 4)? "modal pink-gradient" : (item.rarity == 5)? "modal gold-gradient" : "modal blue-gradient";
@@ -51,7 +51,7 @@ const Modal = ({ handleClose, item, rarity}) => {
           >
             <p>{item.name}</p> 
             <img src={item.imagePath} width="300" height="300"/>
-            <button onClick={handleClose}>Close</button>
+            <button onClick={handleClose}>{ret}</button>
           </motion.div>
       </Backdrop>
     );

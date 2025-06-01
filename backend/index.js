@@ -96,14 +96,24 @@ app.get("/searchForUser", async (req, res) => {
 
 app.put("/pull", async (req, res) => {
   const username = req.body.username;
-
+  const item = req.body.item;
   var sql = "UPDATE users SET pity = pity + 1, money = money - 1 WHERE username = '" + username + "'";
   //console.log(sql);
   connection.query(sql, function(err, result) {
     if (err) throw err;
     console.log("updated pity + pulls");
-    return res.status(200).send("Pity Update successful.");
+    //return res.status(200).send("Pity Update successful.");
   });
+  console.log("adding to db");
+  "INSERT INTO users (username, password, money, pity) VALUES (?, ?, 0, 0)";
+  var inventoryQuery = "INSERT INTO inventory (username, item_name, img_path, item_rarity, item_copies) VALUES ('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1) ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
+  console.log(inventoryQuery);
+  connection.query(inventoryQuery, function(err, result) {
+    if (err) throw err;
+    console.log("updated inventory x1");
+    return res.status(200).send("Inventory Update successful.");
+  });
+
 }); 
 
 app.put("/tenPull", async(req,res) => {
