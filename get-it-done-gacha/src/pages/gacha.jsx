@@ -103,13 +103,15 @@ function Gacha() {
             alert("Not enough pulls for a x10 pull!");
             return;
         }
+        var pullArray = new Array(10);
+        pullArray = pullArray.fill(0).map(() => roll());
         axios.put("/tenPull", {
             username: user,
+            itemArray: pullArray
         }).then((response) => {
             setReturn("Continue");
             syncDB();
-            var pullArray = new Array(10);
-            pullArray = pullArray.fill(0).map(() => roll());
+            
             setItem(pullArray);
             console.log(pullArray);
             if (modalOpen)
