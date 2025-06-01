@@ -23,7 +23,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from '../components/Modal/index';
 import ModalChain from '../components/ModalChain/index'
-
+import itemList from '../../public/itemList';
 axios.defaults.baseURL = 'http://localhost:8080';
 
 function Gacha() {
@@ -34,8 +34,8 @@ function Gacha() {
     const closeChain = () => setModalChainOpen(false);
     const openChain = () => setModalChainOpen(true);
 
-    const [item, setItem] = useState([""]);
-    const [pulls, setPulls] = useState(180);
+    const [item, setItem] = useState([]);
+    const [pulls, setPulls] = useState(0);
     const [pity, setPity] = useState(0);
     const [inventory, updateInventory] = useState([0, 0, 0]);
     var user = "test";
@@ -124,7 +124,6 @@ function Gacha() {
             alert("Not enough pulls!");
             return;
         }
-
         /** GATCHA RATES:
          *  85%:  3*
          *  13%:  4*
