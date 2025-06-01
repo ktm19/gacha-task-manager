@@ -22,22 +22,23 @@ import '../App.css'
 import axios from 'axios';
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from '../components/Modal/index';
-import ModalChain from '../components/ModalChain/index'
-import itemList from '../../public/itemList';
+//import ModalChain from '../components/ModalChain/index';
+import {itemList} from '../../itemList';
 axios.defaults.baseURL = 'http://localhost:8080';
 
 function Gacha() {
-    
+    //console.log(itemList.fourStars[0].name);
     const open = () => setModalOpen(true);
 
-    const [modalChainOpen, setModalChainOpen] = useState(false);
-    const closeChain = () => setModalChainOpen(false);
-    const openChain = () => setModalChainOpen(true);
+    // const [modalChainOpen, setModalChainOpen] = useState(false);
+    // const closeChain = () => setModalChainOpen(false);
+    // const openChain = () => setModalChainOpen(true);
 
     const [item, setItem] = useState([]);
     const [pulls, setPulls] = useState(0);
     const [pity, setPity] = useState(0);
-    const [inventory, updateInventory] = useState([0, 0, 0]);
+    const [rarity, setRarity] = useState(3);
+    //const [inventory, updateInventory] = useState([0, 0, 0]);
     var user = "test";
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -73,12 +74,6 @@ function Gacha() {
             }
         });
     }
-    // function singlePull() {
-    //     if (pulls > 0)
-    //         pull(() => { });
-    //     else
-    //         alert("Not enough pulls!");
-    // }
 
     function tenPull() {
         if (pulls < 10) {
@@ -114,9 +109,6 @@ function Gacha() {
         });
     }
 
-    function roll() {
-        
-    }
 
 
     function singlePull() {
@@ -131,20 +123,19 @@ function Gacha() {
          */
         var roll = Math.random() * 100;
         console.log(roll);
+        var wish;
         if (roll < 2) {
-            //five star
-            setItem(["5 star"]);
-            console.log("5 star");
-        } else if (roll < 15) {
-            //four star
-            setItem(["4 star"]);
-            console.log("4 star");
+            setRarity(5);
+            wish = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
+        } else if (roll < 14) {
+            setRarity(4);
+            wish = itemList.fourStars[Math.floor(Math.random() * itemList.fourStars.length)];
         } else {
-            //three star
-            setItem(["3 star"]);
-            console.log("3 star");
+            setRarity(3);
+            wish = itemList.threeStars[Math.floor(Math.random() * itemList.threeStars.length)];
         }
-
+        setItem(wish);
+        console.log(wish.name);
         if (modalOpen)
             close();
         else
@@ -195,7 +186,7 @@ function Gacha() {
                 // Fires when all exiting nodes have completed animating out
                 onExitComplete={() => null}
             >
-                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} text={item} />}
+                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} item={item} rarity={rarity} />}
             </AnimatePresence>
 
         </b>
