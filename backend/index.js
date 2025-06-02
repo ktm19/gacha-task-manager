@@ -159,6 +159,91 @@ app.put("/resetPity", async(req,res) => {
   });
 })
 
+
+app.get("/getUserMoney", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not logged in.");
+  }
+
+  const username = req.session.user.username;
+
+  try {
+    const query = "SELECT money FROM users WHERE username = ?";
+    connection.query(query, [username], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error fetching user money.");
+      }
+
+      if (results.length === 0) {
+        return res.status(404).send("User not found.");
+      }
+
+      res.status(200).json({
+        money: results[0].money
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+app.put("/completeTask", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not logged in.");
+  }
+
+  const username = req.session.user.username;
+  const taskProbability = req.body.probability; // Float between 0 and 1
+
+  if (!taskProbability || taskProbability < 0 || taskProbability > 1) {
+    return res.status(400).send("Invalid probability value.");
+  }
+
+  try {
+    // Generate random number to determine if user gets a pull
+    const randomValue = Math.random();
+    const earnedPull = randomValue < taskProbability;
+
+    if (earnedPull) {
+      // User earned a pull, increment money by 1
+      const updateQuery = "UPDATE users SET money = money + 1 WHERE username = ?";
+      connection.query(updateQuery, [username], (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error updating user money.");
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).send("User not found.");
+        }
+
+        console.log(`User ${username} earned a pull with probability ${taskProbability}`);
+        res.status(200).json({
+          earnedPull: true,
+          probability: taskProbability,
+          message: "Task completed! You earned 1 pull!"
+        });
+      });
+    } else {
+      // User didn't earn a pull, but task was still completed
+      console.log(`User ${username} didn't earn a pull with probability ${taskProbability}`);
+      res.status(200).json({
+        earnedPull: false,
+        probability: taskProbability,
+        message: "Task completed! No pull earned this time."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+
+
+
 app.post("/register", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -389,7 +474,98 @@ app.put("/updateUserStatus", async (req, res) => {
     return res.status(500).send("Server error.");
   }
 });
-/* USER STATUS ENDPOINTS */
+
+
+/* USER STATUS ENDPOINTS END */
+
+app.get("/getUserTasks", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+  
+  try {
+    const query = `
+      SELECT t.task_id AS id, t.name AS text, t.value/1000 AS points 
+      FROM tasks t
+      JOIN users u ON t.user_id = u.user_id
+      WHERE u.username = ? AND t.is_completed = 0
+    `;
+    
+    connection.query(query, [req.session.user.username], (err, results) => {
+      if (err) {
+        console.error("Error fetching tasks:", err);
+        return res.status(500).send("Error fetching tasks");
+      }
+      res.status(200).json({ tasks: results });
+    });
+  } catch (error) {
+    console.error("Error in getUserTasks:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+
+app.post("/createTask", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+  
+  try {
+    const { name, probability } = req.body;
+    const value = Math.round(probability * 1000);
+    
+    const userQuery = "SELECT user_id FROM users WHERE username = ?";
+    connection.query(userQuery, [req.session.user.username], (err, userResults) => {
+      if (err || userResults.length === 0) {
+        console.error("Error finding user:", err);
+        return res.status(500).send("Error creating task");
+      }
+      
+      const insertQuery = `
+        INSERT INTO tasks 
+        (user_id, name, description, value, is_completed, is_habit)
+        VALUES (?, ?, 'simple_task', ?, 0, 0)
+      `;
+      
+      connection.query(insertQuery, 
+        [userResults[0].user_id, name, value],
+        (err, result) => {
+          if (err) {
+            console.error("Error creating task:", err);
+            return res.status(500).send("Error creating task");
+          }
+          res.status(201).json({
+            id: result.insertId,
+            text: name,
+            points: probability,
+            state: 'entering'
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error in createTask:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+app.delete("/deleteTask/:taskId", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+  
+  try {
+    const deleteQuery = "DELETE FROM tasks WHERE task_id = ?";
+    connection.query(deleteQuery, [req.params.taskId], (err, result) => {
+      if (err) {
+        console.error("Error deleting task:", err);
+        return res.status(500).send("Error deleting task");
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).send("Task not found");
+      }
+      res.status(200).send("Task deleted successfully");
+    });
+  } catch (error) {
+    console.error("Error in deleteTask:", error);
+    res.status(500).send("Server error");
+  }
+});
+
 
 /* INVENTORY ENDPOINTS */
 app.get('/inventory', (req, res) => {
