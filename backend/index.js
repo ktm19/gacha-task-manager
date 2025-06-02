@@ -8,7 +8,7 @@ This program is free software: you can redistribute it and/or modify
   (at your option) any later version.
 
   This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  but WITHOUT without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
@@ -417,31 +417,61 @@ app.get('/getShelf', (req, res) => {
     return res.status(400).json({ error: 'Username is required' });
   }
 
-  connection.query(
-    "SELECT users.username, shelf.slot_1, shelf.slot_2, shelf.slot_3, shelf.slot_4 FROM `main_db`.`users` LEFT JOIN `main_db`.`shelf` ON users.user_id = shelf.user_id WHERE username = ?",
-    [username],
-    (error, results) => {
-      if (error) {
-        console.error('Database error:', error);
-        return res.status(500).json({ error: 'Database error' });
-      }
+  // First check if a shelf record exists and get item details in one query
+  const query = `
+    SELECT s.slot_1, s.slot_2, s.slot_3, s.slot_4,
+           i1.img_path as img_1, i2.img_path as img_2, i3.img_path as img_3, i4.img_path as img_4
+    FROM (SELECT * FROM \`main_db\`.\`shelf\` WHERE username = ?) s
+    LEFT JOIN \`main_db\`.\`inventory\` i1 ON s.slot_1 = i1.item_name AND i1.username = s.username
+    LEFT JOIN \`main_db\`.\`inventory\` i2 ON s.slot_2 = i2.item_name AND i2.username = s.username
+    LEFT JOIN \`main_db\`.\`inventory\` i3 ON s.slot_3 = i3.item_name AND i3.username = s.username
+    LEFT JOIN \`main_db\`.\`inventory\` i4 ON s.slot_4 = i4.item_name AND i4.username = s.username
+  `;
 
-      if (results.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+  connection.query(query, [username], (error, results) => {
+    if (error) {
+      console.error('Database error:', error);
+      return res.status(500).json({ error: 'Database error' });
+    }
 
-      // Convert row format to array format expected by frontend
+    if (results.length === 0) {
+      // No shelf exists yet, create it with null slots
+      connection.query(
+        "INSERT INTO `main_db`.`shelf` (username, slot_1, slot_2, slot_3, slot_4) VALUES (?, NULL, NULL, NULL, NULL)",
+        [username],
+        (error) => {
+          if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
+          }
+          // Return empty slots for new shelf
+          return res.json({
+            slots: [null, null, null, null],
+            images: [null, null, null, null]
+          });
+        }
+      );
+    } else {
+      // Return slots and their corresponding images
       const slots = [
-        results[0].slot1 || null,
-        results[0].slot2 || null,
-        results[0].slot3 || null,
-        results[0].slot4 || null
+        results[0].slot_1,
+        results[0].slot_2,
+        results[0].slot_3,
+        results[0].slot_4
+      ];
+      
+      const images = [
+        results[0].img_1,
+        results[0].img_2,
+        results[0].img_3,
+        results[0].img_4
       ];
 
-      res.json({ slots });
+      res.json({ slots, images });
     }
-  );
+  });
 });
+
 
 // Update user's shelf layout
 app.put('/updateShelf', (req, res) => {
@@ -456,39 +486,133 @@ app.put('/updateShelf', (req, res) => {
     return res.status(400).json({ error: 'Invalid slots format' });
   }
 
-  // First get user ID
+  // First, check if the unique index already exists, if not add it
   connection.query(
-    "SELECT id FROM `main_db`.`users` WHERE username = ?",
-    [username],
-    (error, userResults) => {
+    "SHOW INDEXES FROM `main_db`.`shelf` WHERE Key_name = 'username_UNIQUE'",
+    (error, results) => {
       if (error) {
         console.error('Database error:', error);
         return res.status(500).json({ error: 'Database error' });
       }
 
-      if (userResults.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
+      // If index doesn't exist, create it
+      if (results.length === 0) {
+        connection.query(
+          "ALTER TABLE `main_db`.`shelf` ADD UNIQUE INDEX `username_UNIQUE` (`username`)",
+          (error) => {
+            if (error) {
+              console.error('Database error:', error);
+              return res.status(500).json({ error: 'Database error' });
+            }
+          }
+        );
       }
 
-      const userId = userResults[0].id;
-
-      // Then upsert the shelf layout
+      // Validate that user exists
       connection.query(
-        `INSERT INTO \`gacha-db\`.\`shelf\` (user_id, slot1, slot2, slot3, slot4) 
-         VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE 
-         slot1 = VALUES(slot1),
-         slot2 = VALUES(slot2),
-         slot3 = VALUES(slot3),
-         slot4 = VALUES(slot4)`,
-        [userId, slots[0], slots[1], slots[2], slots[3]],
-        (error, results) => {
+        "SELECT username FROM `main_db`.`users` WHERE username = ?",
+        [username],
+        (error, userResults) => {
           if (error) {
             console.error('Database error:', error);
             return res.status(500).json({ error: 'Database error' });
           }
 
-          res.json({ message: 'Shelf updated successfully' });
+          if (userResults.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+          }
+
+          // Validate that the items being placed exist in the user's inventory
+          const nonNullSlots = slots.filter(item => item !== null);
+          if (nonNullSlots.length > 0) {
+            connection.query(
+              "SELECT item_name, img_path FROM `main_db`.`inventory` WHERE username = ? AND item_name IN (?)",
+              [username, nonNullSlots],
+              (error, inventoryResults) => {
+                if (error) {
+                  console.error('Database error:', error);
+                  return res.status(500).json({ error: 'Database error' });
+                }
+
+                const validItems = new Map(inventoryResults.map(row => [row.item_name, row.img_path]));
+                const invalidItems = nonNullSlots.filter(item => !validItems.has(item));
+
+                if (invalidItems.length > 0) {
+                  return res.status(400).json({ 
+                    error: 'Some items are not in your inventory',
+                    invalidItems 
+                  });
+                }
+
+                // First check if user exists in shelf table
+                connection.query(
+                  "SELECT username FROM `main_db`.`shelf` WHERE username = ?",
+                  [username],
+                  (error, shelfResults) => {
+                    if (error) {
+                      console.error('Database error:', error);
+                      return res.status(500).json({ error: 'Database error' });
+                    }
+
+                    const query = shelfResults.length === 0 
+                      ? "INSERT INTO `main_db`.`shelf` (username, slot_1, slot_2, slot_3, slot_4) VALUES (?, ?, ?, ?, ?)"
+                      : "UPDATE `main_db`.`shelf` SET slot_1 = ?, slot_2 = ?, slot_3 = ?, slot_4 = ? WHERE username = ?";
+                    
+                    const params = shelfResults.length === 0
+                      ? [username, slots[0], slots[1], slots[2], slots[3]]
+                      : [slots[0], slots[1], slots[2], slots[3], username];
+
+                    connection.query(query, params, (error, results) => {
+                      if (error) {
+                        console.error('Database error:', error);
+                        return res.status(500).json({ error: 'Database error' });
+                      }
+
+                      // Return both slots and their corresponding images
+                      const images = slots.map(slot => slot ? validItems.get(slot) : null);
+                      res.json({ 
+                        message: 'Shelf updated successfully',
+                        slots: slots,
+                        images: images
+                      });
+                    });
+                  }
+                );
+              }
+            );
+          } else {
+            // If all slots are null, check if user exists in shelf table first
+            connection.query(
+              "SELECT username FROM `main_db`.`shelf` WHERE username = ?",
+              [username],
+              (error, shelfResults) => {
+                if (error) {
+                  console.error('Database error:', error);
+                  return res.status(500).json({ error: 'Database error' });
+                }
+
+                const query = shelfResults.length === 0
+                  ? "INSERT INTO `main_db`.`shelf` (username, slot_1, slot_2, slot_3, slot_4) VALUES (?, ?, ?, ?, ?)"
+                  : "UPDATE `main_db`.`shelf` SET slot_1 = ?, slot_2 = ?, slot_3 = ?, slot_4 = ? WHERE username = ?";
+
+                const params = shelfResults.length === 0
+                  ? [username, slots[0], slots[1], slots[2], slots[3]]
+                  : [slots[0], slots[1], slots[2], slots[3], username];
+
+                connection.query(query, params, (error, results) => {
+                  if (error) {
+                    console.error('Database error:', error);
+                    return res.status(500).json({ error: 'Database error' });
+                  }
+                  res.json({ 
+                    message: 'Shelf updated successfully',
+                    slots: slots,
+                    images: [null, null, null, null]
+                  });
+                });
+              }
+            );
+          }
         }
       );
     }
