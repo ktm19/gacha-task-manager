@@ -24,6 +24,7 @@ import session from "express-session";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import path from "path";
 import { createEngine } from "express-react-views";
 import bcrypt from 'bcrypt'
 import connection from "./database.js";
@@ -65,15 +66,15 @@ app.use(
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
-console.log(join(__dirname, "public"));
+// app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
+// console.log(join(__dirname, "public"));
 
 // For JSX
 app.set("views", join(__dirname, "get-it-done-gacha/src"));
 app.set("view engine", "jsx");
 app.engine("jsx", createEngine());
 
-app.get("/", (req, res) => res.send("Try: /status, /users, or /tasks/2"));
+// app.get("/", (req, res) => res.send("Try: /status, /users, or /tasks/2"));
 
 app.get("/status", function (req, res, next) { res.send("Success."); });
 
@@ -822,11 +823,32 @@ app.put('/updateShelf', (req, res) => {
 /* INVENTORY ENDPOINTS */
 
 // Use port 8080 by default, unless configured differently in Google Cloud
-const port = process.env.PORT || 8080;
-app.listen(port, "0.0.0.0", () => {
-  console.log(`App is running at: http://0.0.0.0:${port}`);
+
+// const port = process.env.PORT || 8080;
+// app.listen(port, "0.0.0.0", () => {
+//   console.log(`App is running at: http://0.0.0.0:${port}`);
+// });
+
+
+
+// --- Serve Static Frontend Files ---
+// Construct the path to the frontend build directory. Make sure to use the right line-- the first is for deployment with docker, and the second is for running locally
+// const frontendBuildPath = path.join(__dirname, 'frontend', 'dist');
+const frontendBuildPath = path.join(__dirname, 'get-it-done-gacha', 'dist'); 
+app.use(express.static(frontendBuildPath));
+
+// --- Catch-all for Frontend Routing ---
+// For any GET request that doesn't match an API route or a static file,
+// serve the frontend's index.html file. This is crucial for client-side routing.
+app.get('/{*any}', (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
 
-
-
+const port = process.env.PORT || 8080;
+// --- Start Server ---
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+  console.log(`Frontend should be available at http://localhost:${port}/`);
+  console.log(`Serving static files from: ${frontendBuildPath}`);
+});
 

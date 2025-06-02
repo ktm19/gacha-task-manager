@@ -70,7 +70,7 @@ useEffect(() => {
 
   const fetchUserTasks = async () => {
     try {
-      const response = await fetch("http://localhost:8080/getUserTasks", {
+      const response = await fetch("/getUserTasks", {
         method: "GET",
         credentials: "include",
       });
@@ -90,7 +90,7 @@ useEffect(() => {
 
   const checkLoginStatus = async () => {
     try {
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await fetch("/login", {
         method: "GET",
         credentials: "include",
       });
@@ -110,7 +110,7 @@ useEffect(() => {
 
   const fetchUserMoney = async () => {
     try {
-      const response = await fetch("http://localhost:8080/getUserMoney", {
+      const response = await fetch("/getUserMoney", {
         method: "GET",
         credentials: "include",
       });
@@ -129,7 +129,7 @@ useEffect(() => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await fetch("/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +157,7 @@ useEffect(() => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8080/register", {
+      const response = await fetch("/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -187,7 +187,7 @@ useEffect(() => {
     if (!inputValue.trim()) return;
 
     try {
-      const response = await fetch("http://localhost:8080/createTask", {
+      const response = await fetch("/createTask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -224,7 +224,7 @@ useEffect(() => {
 
     try {
       // Send probability to backend to determine if user gets a pull
-      const response = await fetch("http://localhost:8080/completeTask", {
+      const response = await fetch("/completeTask", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

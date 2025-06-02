@@ -25,8 +25,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { a } from 'framer-motion/client';
 
-axios.defaults.baseURL = 'http://localhost:8080';
-
 function Login() {
   const navigate = useNavigate();
   
@@ -72,21 +70,6 @@ function Login() {
     
     navigate("/dashboard");
   }, []); // No dependencies needed since we only want this to run once on mount
-
-
-  // useEffect(() => {
-  //   axios.get("/login", { 
-  //     withCredentials: true 
-  //   }).then((response) => {
-  //     // console.log(response);
-  //     // console.log("Response Test");
-  //     if (response.data.loggedIn === true) {
-  //       console.log("Logged In: " + response.data.user.username);
-  //       navigate("/dashboard");
-
-  //     }
-  //   });
-  // }, []); // Empty dependency array means this runs once on component mount
 
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">

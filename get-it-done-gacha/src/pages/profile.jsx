@@ -5,7 +5,6 @@ import '../styles/Profile.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
 

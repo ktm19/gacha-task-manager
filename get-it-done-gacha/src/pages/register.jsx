@@ -24,12 +24,6 @@ import PasswordTextFieldSubmit from '../passwordTextFieldSubmit.jsx'
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:8080';
-/*
-function submitRegister() {
-  
-}
-*/
 function Register() {
   const navigate = useNavigate();
 
@@ -53,20 +47,6 @@ function Register() {
       }
     });
   };
-
-  // useEffect(() => {
-  //   axios.get("/login", { 
-  //     withCredentials: true 
-  //   }).then((response) => {
-  //     // console.log(response);
-  //     // console.log("Response Test");
-  //     if (response.data.loggedIn === true) {
-  //       console.log("Logged In: " + response.data.user.username);
-  //       navigate("/dashboard");
-  //     }
-  //   });
-  // }, []);
-
   
   useEffect(() => {
     const username = localStorage.getItem('username');

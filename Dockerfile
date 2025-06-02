@@ -3,9 +3,9 @@ FROM node:20 AS build-frontend
 
 WORKDIR /app/client
 
-# Copy and install dependencies
+# Copy only package.json and package-lock.json first for dependency caching
 COPY get-it-done-gacha/package.json get-it-done-gacha/package-lock.json ./
-RUN npm install
+RUN npm ci # Use npm ci for cleaner installs
 
 # Copy the rest of the frontend code
 COPY get-it-done-gacha/ .
@@ -20,7 +20,7 @@ WORKDIR /app/backend
 
 # Copy backend package.json first and install deps
 COPY backend/package.json backend/package-lock.json ./
-RUN npm install
+RUN npm ci
 
 # Copy backend code
 COPY backend/ .
@@ -28,12 +28,17 @@ COPY backend/ .
 # Copy built frontend into app
 COPY --from=build-frontend /app/client ../frontend
 
+# --- Combine Frontend and Backend ---
+
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
+# Copy built frontend assets from the build-frontend stage
+COPY --from=build-frontend /app/client/dist ./frontend/dist
 
-EXPOSE 5173
+EXPOSE 8080
 
-# Start the app
-CMD ["npm", "run", "start-prod"]
+# Set the final working directory to where your backend's entry point is
+WORKDIR /app/backend
+
+# Start the backend Express server, which will also serve the frontend
+CMD ["node", "index.js"]

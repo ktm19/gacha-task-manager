@@ -33,17 +33,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import axios from 'axios';
 
 // Configure axios defaults
-axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true;
 
 function App() {
-    // const [users, setUsers] = useState([]);
-
-    // useEffect(() => {
-    //     axios.get('/status').then(response => {
-    //         setUsers(response.data);
-    //     });
-    // }, []);
 
     return (
         <Router>

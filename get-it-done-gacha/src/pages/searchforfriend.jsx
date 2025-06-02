@@ -24,7 +24,6 @@ import TextFieldSubmit from '../textFieldSubmit.jsx';
 import axios from 'axios';
 
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
-axios.defaults.baseURL = 'http://localhost:8080';
 
 function SearchForFriend() {
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -112,18 +111,6 @@ function SearchForFriend() {
     }
     setUsername(username);
   }, []);
-
-
-  // useEffect(() => {
-  //   axios.get("/login", { 
-  //     withCredentials: true 
-  //   }).then((response) => {
-  //     if (response.data.loggedIn) {
-  //       console.log("Logged In: " + response.data.user.username);
-  //       setUsername(response.data.user.username);
-  //     }
-  //   });
-  // }, []);
 
   return (
     <div style={{marginBottom: '10px'}} className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">

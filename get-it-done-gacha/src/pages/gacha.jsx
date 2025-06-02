@@ -24,7 +24,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Modal from '../components/Modal/index';
 //import ModalChain from '../components/ModalChain/index';
 import {itemList} from '../../itemList';
-axios.defaults.baseURL = 'http://localhost:8080';
 
 function Gacha() {
     //console.log(itemList.fourStars[0].name);
