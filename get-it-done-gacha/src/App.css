@@ -32,7 +32,9 @@ body {
   padding: 0 !important;
   overflow-x: hidden;
   text-align: center;
-  --blue-gradient: linear-gradient(10deg, #3556e6, #d175ff);
+  --blue-gradient: linear-gradient(10deg, #79b0ee, #4676d1);
+  --pink-gradient: linear-gradient(10deg, #4676d1, #9346d1);
+  --gold-gradient: linear-gradient(10deg, #ebcd25, #f7873d);
 }
 
 .logo {
@@ -93,7 +95,7 @@ form{
 
 .modal {
   width: clamp(50%, 700px, 90%);
-  height: min(50%, 300px);
+  height: min(60%, 400px);
 
   margin: auto;
   padding: 0 2rem;
@@ -105,4 +107,12 @@ form{
 
 .blue-gradient {
   background: var(--blue-gradient);
+}
+
+.pink-gradient {
+  background: var(--pink-gradient);
+}
+
+.gold-gradient {
+  background: var(--gold-gradient);
 }

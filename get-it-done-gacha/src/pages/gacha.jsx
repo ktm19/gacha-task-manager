@@ -22,23 +22,24 @@ import '../App.css'
 import axios from 'axios';
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from '../components/Modal/index';
-import ModalChain from '../components/ModalChain/index'
-
+//import ModalChain from '../components/ModalChain/index';
+import {itemList} from '../../itemList';
 axios.defaults.baseURL = 'http://localhost:8080';
 
 function Gacha() {
-    
+    //console.log(itemList.fourStars[0].name);
     const open = () => setModalOpen(true);
 
-    const [modalChainOpen, setModalChainOpen] = useState(false);
-    const closeChain = () => setModalChainOpen(false);
-    const openChain = () => setModalChainOpen(true);
+    // const [modalChainOpen, setModalChainOpen] = useState(false);
+    // const closeChain = () => setModalChainOpen(false);
+    // const openChain = () => setModalChainOpen(true);
 
-    const [item, setItem] = useState([""]);
-    const [pulls, setPulls] = useState(180);
+    const [item, setItem] = useState([]);
+    const [pulls, setPulls] = useState(0);
     const [pity, setPity] = useState(0);
-    const [inventory, updateInventory] = useState([0, 0, 0]);
-    var user = "test";
+    const [returnText, setReturn] = useState("Close");
+    //const [inventory, updateInventory] = useState([0, 0, 0]);
+    var user = "awong";
 
     const [modalOpen, setModalOpen] = useState(false);
     const close = () => {
@@ -47,9 +48,32 @@ function Gacha() {
             console.log("chain");
             setItem(item.slice(1));
             open();
+        } else if (item.length == 2)
+        {
+            setItem(item.slice(1));
+            setReturn("Close");
         }
+            
     };
 
+    function roll() {
+        /** GATCHA RATES:
+         *  85%:  3*
+         *  13%:  4*
+         *  2%    5*
+         */
+        var rand = Math.random() * 100;
+        console.log(rand);
+        var pull;
+        if (rand < 2) {
+            pull = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
+        } else if (rand < 14) {
+            pull = itemList.fourStars[Math.floor(Math.random() * itemList.fourStars.length)];
+        } else {
+            pull = itemList.threeStars[Math.floor(Math.random() * itemList.threeStars.length)];
+        }
+        return pull;
+    }
     function syncDB() {
         axios.get("/searchForUser", {
             params: {
@@ -73,26 +97,21 @@ function Gacha() {
             }
         });
     }
-    // function singlePull() {
-    //     if (pulls > 0)
-    //         pull(() => { });
-    //     else
-    //         alert("Not enough pulls!");
-    // }
 
     function tenPull() {
         if (pulls < 10) {
             alert("Not enough pulls for a x10 pull!");
             return;
         }
+        var pullArray = new Array(10);
+        pullArray = pullArray.fill(0).map(() => roll());
         axios.put("/tenPull", {
             username: user,
+            itemArray: pullArray
         }).then((response) => {
-
+            setReturn("Continue");
             syncDB();
-            var pullArray = new Array(10);
-            pullArray = pullArray.fill(0).map(() => Math.random() * 100);
-            //note map to rarity later
+            
             setItem(pullArray);
             console.log(pullArray);
             if (modalOpen)
@@ -114,38 +133,16 @@ function Gacha() {
         });
     }
 
-    function roll() {
-        
-    }
-
+    
 
     function singlePull() {
         if (pulls <= 0) {
             alert("Not enough pulls!");
             return;
         }
-
-        /** GATCHA RATES:
-         *  85%:  3*
-         *  13%:  4*
-         *  2%    5*
-         */
-        var roll = Math.random() * 100;
-        console.log(roll);
-        if (roll < 2) {
-            //five star
-            setItem(["5 star"]);
-            console.log("5 star");
-        } else if (roll < 15) {
-            //four star
-            setItem(["4 star"]);
-            console.log("4 star");
-        } else {
-            //three star
-            setItem(["3 star"]);
-            console.log("3 star");
-        }
-
+        var singleItem = roll();
+        setItem([singleItem]);
+        //console.log(wish.name);
         if (modalOpen)
             close();
         else
@@ -153,6 +150,7 @@ function Gacha() {
 
         axios.put("/pull", {
             username: user,
+            item: singleItem
         }).then((response) => {
             syncDB();
             console.log("updating success");
@@ -196,7 +194,7 @@ function Gacha() {
                 // Fires when all exiting nodes have completed animating out
                 onExitComplete={() => null}
             >
-                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} text={item} />}
+                {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} item={item[0]} ret={returnText}/>}
             </AnimatePresence>
 
         </b>

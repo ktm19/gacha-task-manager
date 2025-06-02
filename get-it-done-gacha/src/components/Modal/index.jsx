@@ -31,24 +31,39 @@ const newspaper = {
     // },
   };
 
-const Modal = ({ handleClose, text }) => {
+const Modal = ({ handleClose, item, ret}) => {
     //TO DO. change className gradient based on rarity
+    console.log(item.rarity);
+    var bg = (item.rarity == 4)? "modal pink-gradient" : (item.rarity == 5)? "modal gold-gradient" : "modal blue-gradient";
+    // if (rarity == 4)
+    //   bg = "modal pink-gradient";
+    // else
+    //   bg = "modal gold-gradient";
     return (
       <Backdrop onClick={handleClose}>
           <motion.div
             onClick={(e) => e.stopPropagation()}  
-            className="modal blue-gradient"
+            className={bg}
             variants={newspaper}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
-            <p>{text[0]}</p>
-            <button onClick={handleClose}>Close</button>
+            <p>{item.name}</p> 
+            <img src={item.imagePath} width="300" height="300"/>
+            <button onClick={handleClose}>{ret}</button>
           </motion.div>
       </Backdrop>
     );
   };
 
+
+  /* structure of an item:
+const exampleItem = {
+    name: "",
+    description: "",
+    imagePath (path starting not include "public"): "" 
+};
+*/
   
   export default Modal;
