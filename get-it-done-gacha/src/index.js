@@ -43,6 +43,25 @@ app.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
+// Ensure shelf table exists
+connection.query(
+  `CREATE TABLE IF NOT EXISTS \`gacha-db\`.\`shelf\` (
+    user_id INT PRIMARY KEY,
+    slot1 VARCHAR(255),
+    slot2 VARCHAR(255),
+    slot3 VARCHAR(255),
+    slot4 VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )`,
+  (error) => {
+    if (error) {
+      console.error('Error creating shelf table:', error);
+      return;
+    }
+    console.log('Shelf table exists or was created successfully');
+  }
+);
+
 // Ensure user_status column exists
 connection.query(
   "SHOW COLUMNS FROM `gacha-db`.`users` LIKE 'user_status'",
@@ -128,16 +147,6 @@ app.put('/updateUserStatus', (req, res) => {
   );
 });
 
-app.get('/users', (req, res) => {
-  connection.query(
-    "SELECT * FROM `gacha-db`.`users`",
-    (error, results, fields) => {
-      if(error) throw error;
-      res.json(results);
-    }
-  );
-});
-
 app.route('/tasks/:task_id')
   .get((req, res, next) => {
     connection.query(
@@ -149,6 +158,16 @@ app.route('/tasks/:task_id')
       }
     );
   });
+
+  app.get('/users', (req, res) => {
+  connection.query(
+    "SELECT * FROM `gacha-db`.`users`",
+    (error, results, fields) => {
+      if(error) throw error;
+      res.json(results);
+    }
+  );
+});
 
 // Add a test endpoint to verify the server is running
 app.get('/test', (req, res) => {

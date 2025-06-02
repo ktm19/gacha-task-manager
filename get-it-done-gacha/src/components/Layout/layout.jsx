@@ -3,8 +3,10 @@ import Navbar from '../Navbar/navbar.jsx'; // Adjust the import path as necessar
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen pb-16"> {/* Add padding bottom to prevent content from being hidden by navbar */}
-      {children}
+    <div className="min-h-screen pb-20 relative"> {/* Increased padding to prevent content from being hidden */}
+      <div className="overflow-y-auto h-full">
+        {children}
+      </div>
       <Navbar />
     </div>
   );
