@@ -196,6 +196,8 @@ app.put("/completeTask", async (req, res) => {
 
   const username = req.session.user.username;
   const taskProbability = req.body.probability; // Float between 0 and 1
+  const id = req.body.id;
+  // console.log("id: " + id);
 
   if (!taskProbability || taskProbability < 0 || taskProbability > 1) {
     return res.status(400).send("Invalid probability value.");
@@ -206,35 +208,47 @@ app.put("/completeTask", async (req, res) => {
     const randomValue = Math.random();
     const earnedPull = randomValue < taskProbability;
 
-    if (earnedPull) {
-      // User earned a pull, increment money by 1
-      const updateQuery = "UPDATE users SET money = money + 1 WHERE username = ?";
-      connection.query(updateQuery, [username], (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Error updating user money.");
-        }
+    const updateQuery = "UPDATE tasks SET is_completed = 1 WHERE task_id = ?";
+    connection.query(updateQuery, [id], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating completion status.");
+      }
 
-        if (result.affectedRows === 0) {
-          return res.status(404).send("User not found.");
-        }
-
-        console.log(`User ${username} earned a pull with probability ${taskProbability}`);
-        res.status(200).json({
-          earnedPull: true,
-          probability: taskProbability,
-          message: "Task completed! You earned 1 pull!"
+      if (earnedPull) {
+        // User earned a pull, increment money by 1
+        const updateQuery = "UPDATE users SET money = money + 1 WHERE username = ?";
+        connection.query(updateQuery, [username], (err, result) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error updating user money.");
+          }
+  
+          if (result.affectedRows === 0) {
+            return res.status(404).send("User not found.");
+          }
+  
+          console.log(`User ${username} earned a pull with probability ${taskProbability}`);
+          res.status(200).json({
+            earnedPull: true,
+            probability: taskProbability,
+            message: "Task completed! You earned 1 pull!"
+          });
         });
-      });
-    } else {
-      // User didn't earn a pull, but task was still completed
-      console.log(`User ${username} didn't earn a pull with probability ${taskProbability}`);
-      res.status(200).json({
-        earnedPull: false,
-        probability: taskProbability,
-        message: "Task completed! No pull earned this time."
-      });
-    }
+      } else {
+        // User didn't earn a pull, but task was still completed
+        console.log(`User ${username} didn't earn a pull with probability ${taskProbability}`);
+        res.status(200).json({
+          earnedPull: false,
+          probability: taskProbability,
+          message: "Task completed! No pull earned this time."
+        });
+      }
+
+
+    });
+
+    
   } catch (error) {
     console.error(error);
     return res.status(500).send("Server error.");

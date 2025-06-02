@@ -76,6 +76,7 @@ useEffect(() => {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setTasks(data.tasks.map(task => ({
           ...task,
           state: 'visible',
@@ -229,7 +230,7 @@ useEffect(() => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ probability: completedTask.points }),
+        body: JSON.stringify({ probability: completedTask.points, id: id }),
       });
 
       if (response.ok) {

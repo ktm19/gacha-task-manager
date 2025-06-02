@@ -41,7 +41,7 @@ function Profile() {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
           newFriendsList.push(
-            <button key={i} type="submit" style={{margin: '5px', backgroundColor: "#52c98f", listStyleType: 'none'}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
+            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none'}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
               <li key={i}>{(response.data)[i]["name"]}</li>
             </button>
           );
