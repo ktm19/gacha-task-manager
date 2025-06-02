@@ -21,23 +21,26 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
       <div className="max-w-screen-xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-around items-center h-16 gap-4">
           {links.map((link) => (
-            link.path !== currentPath && (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                {link.label}
-              </Link>
-            )
+            <button
+              key={link.path}
+              onClick={() => navigate(link.path)}
+              disabled={link.path === currentPath}
+              className={`flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 transition-all duration-200 ${
+                link.path === currentPath
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'text-gray-600 hover:text-blue-500 hover:border-blue-500 border-transparent'
+              }`}
+            >
+              {link.label}
+            </button>
           ))}
           <button
             onClick={handleLogout}
-            className="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium"
+            className="flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 border-transparent text-gray-600 hover:text-red-500 hover:border-red-500 transition-all duration-200"
           >
             Logout
           </button>

@@ -43,6 +43,25 @@ app.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
+// Ensure shelf table exists
+connection.query(
+  `CREATE TABLE IF NOT EXISTS \`gacha-db\`.\`shelf\` (
+    user_id INT PRIMARY KEY,
+    slot1 VARCHAR(255),
+    slot2 VARCHAR(255),
+    slot3 VARCHAR(255),
+    slot4 VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )`,
+  (error) => {
+    if (error) {
+      console.error('Error creating shelf table:', error);
+      return;
+    }
+    console.log('Shelf table exists or was created successfully');
+  }
+);
+
 // Ensure user_status column exists
 connection.query(
   "SHOW COLUMNS FROM `gacha-db`.`users` LIKE 'user_status'",
@@ -127,6 +146,135 @@ app.put('/updateUserStatus', (req, res) => {
     }
   );
 });
+
+app.get('/inventory', (req, res) => {
+  const username = req.query.username;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  // get the user ID
+  connection.query(
+    "SELECT id FROM `gacha-db`.`users` WHERE username = ?",
+    [username],
+    (error, userResults) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (userResults.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userId = userResults[0].id;
+
+      // get their inventory
+      connection.query(
+        "SELECT item_name, img_path FROM `gacha-db`.`inventory` WHERE user_id = ?",
+        [userId],
+        (error, inventoryResults) => {
+          if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          res.json(inventoryResults);
+        }
+      );
+    }
+  );
+});
+
+/* none of the shelf code has been tested yet, so it may not work as expected */
+
+// Get user's shelf layout
+app.get('/getShelf', (req, res) => {
+  const username = req.query.username;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  connection.query(
+    "SELECT users.id, shelf.slot1, shelf.slot2, shelf.slot3, shelf.slot4 FROM `gacha-db`.`users` LEFT JOIN `gacha-db`.`shelf` ON users.id = shelf.user_id WHERE username = ?",
+    [username],
+    (error, results) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Convert row format to array format expected by frontend
+      const slots = [
+        results[0].slot1 || null,
+        results[0].slot2 || null,
+        results[0].slot3 || null,
+        results[0].slot4 || null
+      ];
+
+      res.json({ slots });
+    }
+  );
+});
+
+// Update user's shelf layout
+app.put('/updateShelf', (req, res) => {
+  const username = req.query.username;
+  const { slots } = req.body;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  if (!Array.isArray(slots) || slots.length !== 4) {
+    return res.status(400).json({ error: 'Invalid slots format' });
+  }
+
+  // First get user ID
+  connection.query(
+    "SELECT id FROM `gacha-db`.`users` WHERE username = ?",
+    [username],
+    (error, userResults) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (userResults.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userId = userResults[0].id;
+
+      // Then upsert the shelf layout
+      connection.query(
+        `INSERT INTO \`gacha-db\`.\`shelf\` (user_id, slot1, slot2, slot3, slot4) 
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE 
+         slot1 = VALUES(slot1),
+         slot2 = VALUES(slot2),
+         slot3 = VALUES(slot3),
+         slot4 = VALUES(slot4)`,
+        [userId, slots[0], slots[1], slots[2], slots[3]],
+        (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          res.json({ message: 'Shelf updated successfully' });
+        }
+      );
+    }
+  );
+});
+/* shelf code ends here */
 
 app.get('/users', (req, res) => {
   connection.query(

@@ -8,6 +8,7 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
+
 function Profile() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -16,12 +17,10 @@ function Profile() {
   const [error, setError] = useState("");
   const maxStatusLength = 100;
 
-  const containerStyle = {
-    backgroundImage: 'url(/bliss_background.jpg)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat'
-  };
+  const [selectedImages, setSelectedImages] = useState(Array(4).fill(null));
+  const [activeSlot, setActiveSlot] = useState(null);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState([]);
 
   const handleClick = (username) => {
     setUsername(username);
@@ -105,6 +104,90 @@ function Profile() {
     }
   };
 
+  /* Save the current shelf layout to the server */
+  const saveShelfLayout = async () => {
+    if (!username) return;
+    
+    try {
+      console.log('Saving shelf layout for user:', username);
+      await axios.put('/updateShelf', { 
+        username,
+        slots: selectedImages 
+      }, { 
+        withCredentials: true 
+      });
+      console.log('Shelf layout saved successfully');
+    } catch (error) {
+      console.error('Failed to save shelf layout:', error);
+    }
+  };
+  /* note not been tested yet bc i hve nothing in my inventory */
+
+  /* shelf image selection logic */
+  const handleSlotClick = (index) => {
+    setActiveSlot(index);
+    setShowImageSelector(true);
+  };
+
+  const handleSlotRightClick = (e, index) => {
+    e.preventDefault(); // Prevent the default context menu
+    if (selectedImages[index]) {
+      const newSelectedImages = [...selectedImages];
+      newSelectedImages[index] = null;
+      setSelectedImages(newSelectedImages);
+      saveShelfLayout();
+    }
+  };
+
+  const handleImageSelect = (image) => {
+    if (activeSlot !== null) {
+      const newSelectedImages = [...selectedImages];
+      newSelectedImages[activeSlot] = image;
+      setSelectedImages(newSelectedImages);
+      setShowImageSelector(false);
+      saveShelfLayout();
+    }
+  }
+
+  const fetchShelfLayout = async (username) => {
+    if (!username) return;
+    
+    try {
+      console.log('Fetching shelf layout for user:', username);
+      const response = await axios.get('/getShelf', {
+        params: { username },
+        withCredentials: true
+      });
+      console.log('Shelf layout response:', response.data);
+      setSelectedImages(response.data.slots || Array(4).fill(null));
+    } catch (error) {
+      console.error('Failed to fetch shelf layout:', error);
+      setSelectedImages(Array(4).fill(null));
+    }
+  };
+
+  /* inventory fetching logic */
+  const fetchInventory = async (username) => {
+    if (!username) return;
+    
+    try {
+      console.log('Fetching inventory for user:', username);
+      const response = await axios.get('/inventory', {
+        params: { username },
+        withCredentials: true
+      });
+      console.log('Inventory response:', response.data);
+      setInventoryItems(response.data.map((item, index) => ({
+        id: index + 1,
+        name: item.item_name,
+        path: item.img_path
+      })));
+    } catch (error) {
+      console.error('Failed to fetch inventory:', error);
+      setInventoryItems([]);
+    }
+  };
+
   // fixed 12:30pm 5/31/25 YAYYYY
   // fix involved using the same login logic
   useEffect(() => {
@@ -117,10 +200,12 @@ function Profile() {
     setUsername(username);
     fetchUserStatus(username);
     getFriendsList(username);
+    fetchInventory(username);
+    fetchShelfLayout(username);
   }, []); // No dependencies needed since we only want this to run once on mount
 
   return (
-    <div className="profile-container" style={containerStyle}>
+    <div className="profile-container">
       {/* Username in top left */}
       <div className="username">
         <h2>
@@ -172,14 +257,53 @@ function Profile() {
           <h2 className="section-title">My Shelf</h2>
           <div className="section-content">
             <div className="shelf-grid">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="shelf-item">
-                  Shelf Item {i}
-                </div>
-              ))}
+              {Array(4).fill(null).map((_, i) => (
+            <div
+            key={i}
+            className="shelf-item"
+            onClick={() => handleSlotClick(i)}
+            onContextMenu={(e) => handleSlotRightClick(e, i)}
+            title={selectedImages[i] ? "Right-click to remove item" : "Click to add an item"}
+            style={{
+              cursor: 'pointer',
+              background: selectedImages[i] 
+                ? `url(${selectedImages[i]}) center/contain no-repeat`
+                : 'rgba(255, 255, 255, 0.05)',
+            }}
+        > 
+          {!selectedImages[i] && <span>Click to add item</span>}
             </div>
-          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  {/* Image Selector Modal */}
+  {showImageSelector && (
+    <div className="image-selector-modal">
+      <div className="modal-content">
+        <h3>Inventory</h3>
+        <div className="image-grid">
+          {inventoryItems.map((image) => (
+            <div
+              key={image.id}
+              className="image-option"
+              onClick={() => handleImageSelect(image.path)}
+            >
+              <img src={image.path} alt={image.name} />
+              <span>{image.name}</span>
+            </div>
+          ))}
         </div>
+        <button 
+          className="close-button"
+          onClick={() => setShowImageSelector(false)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+    )}
 
         {/* Friends Section */}
         <div className="section">
