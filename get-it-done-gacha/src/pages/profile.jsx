@@ -27,6 +27,8 @@ function Profile() {
     setFriendsList([]);
     getFriendsList(username);
     fetchUserStatus(username);
+    // fetchInventory(username);
+    fetchShelfLayout(username);
   }
 
   const getFriendsList = (username) => {
@@ -39,7 +41,7 @@ function Profile() {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
           newFriendsList.push(
-            <button key={i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}>
+            <button key={i} type="submit" style={{margin: '5px', backgroundColor: "#52c98f", listStyleType: 'none'}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
               <li key={i}>{(response.data)[i]["name"]}</li>
             </button>
           );
@@ -110,15 +112,28 @@ function Profile() {
     
     try {
       console.log('Saving shelf layout for user:', username);
-      await axios.put('/updateShelf', { 
-        username,
-        slots: selectedImages 
-      }, { 
-        withCredentials: true 
+      // Map the image paths back to item names
+      const slots = selectedImages.map(imagePath => {
+        if (!imagePath) return null;
+        // First try to find the item in inventory
+        const item = inventoryItems.find(item => item.path === imagePath);
+        if (item) return item.name;
+        // If not found in inventory (which might happen right after loading), try to get name from path
+        console.log('Image path:', imagePath);
+        return null;
       });
+
+      await axios.put('/updateShelf', 
+        { slots }, 
+        { 
+          params: { username },
+          withCredentials: true 
+        }
+      );
       console.log('Shelf layout saved successfully');
     } catch (error) {
       console.error('Failed to save shelf layout:', error);
+      console.error('Error details:', error.response?.data);
     }
   };
   /* note not been tested yet bc i hve nothing in my inventory */
@@ -145,7 +160,25 @@ function Profile() {
       newSelectedImages[activeSlot] = image;
       setSelectedImages(newSelectedImages);
       setShowImageSelector(false);
-      saveShelfLayout();
+      // Use the new images array directly instead of relying on state
+      const slots = newSelectedImages.map(imagePath => {
+        if (!imagePath) return null;
+        const item = inventoryItems.find(item => item.path === imagePath);
+        return item ? item.name : null;
+      });
+      
+      // Save using the new array directly
+      axios.put('/updateShelf', 
+        { slots }, 
+        { 
+          params: { username },
+          withCredentials: true 
+        }
+      ).then(() => {
+        console.log('Shelf layout saved successfully with items:', slots);
+      }).catch(error => {
+        console.error('Failed to save shelf layout:', error);
+      });
     }
   }
 
@@ -159,7 +192,8 @@ function Profile() {
         withCredentials: true
       });
       console.log('Shelf layout response:', response.data);
-      setSelectedImages(response.data.slots || Array(4).fill(null));
+      // Use the image paths instead of slots for display
+      setSelectedImages(response.data.images || Array(4).fill(null));
     } catch (error) {
       console.error('Failed to fetch shelf layout:', error);
       setSelectedImages(Array(4).fill(null));
@@ -192,6 +226,8 @@ function Profile() {
   // fix involved using the same login logic
   useEffect(() => {
     const username = localStorage.getItem('username');
+    console.log(username);
+
     if (!username) {
       setUsername("");
       return;
@@ -316,6 +352,13 @@ function Profile() {
                 "No friends added yet"
               )}
             </div>
+
+            <br></br>
+            <button onClick={() => navigate("/searchforfriend")}>
+              Search for a friend
+            </button>
+
+
           </div>
         </div>
       </div>

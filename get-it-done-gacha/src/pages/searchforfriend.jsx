@@ -21,7 +21,6 @@ import React, { useState, useEffect } from 'react';
 //in a new dir, make sure to go up 1 more level
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
@@ -31,13 +30,13 @@ function SearchForFriend() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResultMessage, setSearchResultMessage] = useState("");
   const [username, setUsername] = useState("");
-  const [friend, SetFriend] = useState("");
+  const [friend, setFriend] = useState("");
 
   const search = (username) => {
     axios.get("/searchForUser?username=" + username).then((response) => {
       setSearchResultMessage("Found: " + (response.data)["username"]);
       setShowSearchResults(true);
-      SetFriend((response.data)["username"]);
+      setFriend((response.data)["username"]);
     }).catch((error) => {
       setShowSearchResults(false);
       if (error.response) {
@@ -56,7 +55,7 @@ function SearchForFriend() {
 
   const add_friend = (fn) => {
     if (username == "") { // check to make sure username set
-      alert("Username is empty");
+      alert("Not logged in");
       return;
     }
     axios.post("/addFriend", {
@@ -81,7 +80,7 @@ function SearchForFriend() {
   const remove_friend = (fn) => {
     // check to make sure username set
     if (username == "") {
-      alert("Username is empty");
+      alert("Not logged in");
       return;
     }
     axios.post("/removeFriend", {
@@ -103,34 +102,31 @@ function SearchForFriend() {
     });
   };
 
-  console.log("Search for friends page loaded");
-
-
-  // TODO: make sure to set username here!
-
-  // useEffect(()=> {
-  //   console.log("Use effect test");
-  //   axios.get("/login").then((response) => {
-  //     console.log(response);
-  //     if (response.data.loggedIn) {
-  //       console.log(response.data.user[0].username);
-  //     }
-  //   })
-  // })
+  // console.log("Search for friends page loaded");
 
   useEffect(() => {
-    axios.get("/login", { 
-      withCredentials: true 
-    }).then((response) => {
-      if (response.data.loggedIn) {
-        console.log("Logged In: " + response.data.user.username);
-        setUsername(response.data.user.username);
-      }
-    });
+    const username = localStorage.getItem('username');
+    if (!username) {
+      setUsername("");
+      return;
+    }
+    setUsername(username);
   }, []);
 
+
+  // useEffect(() => {
+  //   axios.get("/login", { 
+  //     withCredentials: true 
+  //   }).then((response) => {
+  //     if (response.data.loggedIn) {
+  //       console.log("Logged In: " + response.data.user.username);
+  //       setUsername(response.data.user.username);
+  //     }
+  //   });
+  // }, []);
+
   return (
-    <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
+    <div style={{marginBottom: '10px'}} className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Search for a friend </h1>
       <TextFieldSubmit 
         numFields={1} 
@@ -141,18 +137,10 @@ function SearchForFriend() {
 
       <br></br>
 
-      <p>{searchResultMessage}</p>
+      <p style={{marginBottom: '10px'}}>{searchResultMessage}</p>
       {showSearchResults && <button type="submit" onClick={() => {add_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
       {showSearchResults && <button type="submit" onClick = {() => {remove_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
 
-      <div className="mt-4">
-        <p className="text-sm">
-          Want to go back?{' '}
-          <Link to="/" className="text-blue-500 hover:underline">
-            Home
-          </Link>
-        </p>
-        </div>
     </div>
   );
 }
