@@ -29,6 +29,7 @@ const Navbar = () => {
               key={link.path}
               onClick={() => navigate(link.path)}
               disabled={link.path === currentPath}
+              style={{margin: '5px'}}
               className={`flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 transition-all duration-200 ${
                 link.path === currentPath
                   ? 'bg-blue-500 text-white border-blue-500'
@@ -40,6 +41,7 @@ const Navbar = () => {
           ))}
           <button
             onClick={handleLogout}
+            style={{margin: '5px'}}
             className="flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 border-transparent text-gray-600 hover:text-red-500 hover:border-red-500 transition-all duration-200"
           >
             Logout

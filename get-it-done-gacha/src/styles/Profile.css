@@ -1,5 +1,5 @@
 .profile-container {
-    height: 100vh;
+    height: 85vh;
     width: 90vw;
     margin: 0 auto;
     padding: clamp(16px, 2vw, 24px);

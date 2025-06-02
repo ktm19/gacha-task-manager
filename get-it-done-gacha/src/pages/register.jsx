@@ -20,6 +20,7 @@ This program is free software: you can redistribute it and/or modify
 import React, { useState, useEffect } from 'react';
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
+import PasswordTextFieldSubmit from '../passwordTextFieldSubmit.jsx'
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -53,24 +54,33 @@ function Register() {
     });
   };
 
+  // useEffect(() => {
+  //   axios.get("/login", { 
+  //     withCredentials: true 
+  //   }).then((response) => {
+  //     // console.log(response);
+  //     // console.log("Response Test");
+  //     if (response.data.loggedIn === true) {
+  //       console.log("Logged In: " + response.data.user.username);
+  //       navigate("/dashboard");
+  //     }
+  //   });
+  // }, []);
+
+  
   useEffect(() => {
-    axios.get("/login", { 
-      withCredentials: true 
-    }).then((response) => {
-      // console.log(response);
-      // console.log("Response Test");
-      if (response.data.loggedIn === true) {
-        console.log("Logged In: " + response.data.user.username);
-        navigate("/dashboard");
-      }
-    });
+    const username = localStorage.getItem('username');
+    if (!username) {
+      return;
+    }
+    navigate("/dashboard");
   }, []);
 
   console.log("Register page loaded");
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Register </h1>
-      <TextFieldSubmit 
+      <PasswordTextFieldSubmit 
         numFields={3} 
 
         onSubmit={(values) => {
@@ -86,7 +96,7 @@ function Register() {
         fieldPlaceholders={['Username', 'Password', "Re-enter Password"]}
       />
       
-      <div className="mt-4">
+      <div style={{marginTop: '10px'}} className="mt-4">
         <p className="text-sm">
           Already Registered?{' '}
           <Link to="/" className="text-blue-500 hover:underline">

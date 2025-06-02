@@ -37,20 +37,20 @@ axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true;
 
 function App() {
-    const [users, setUsers] = useState([]);
+    // const [users, setUsers] = useState([]);
 
-    useEffect(() => {
-        axios.get('/status').then(response => {
-            setUsers(response.data);
-        });
-    }, []);
+    // useEffect(() => {
+    //     axios.get('/status').then(response => {
+    //         setUsers(response.data);
+    //     });
+    // }, []);
 
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/searchforfriend" element={<SearchForFriend />} />
+                {/* <Route path="/searchforfriend" element={<SearchForFriend />} /> */}
                 <Route path="/directory" element={<Directory />} />
                 
                 {/* Protected Routes with Navigation Bar */}
@@ -65,6 +65,13 @@ function App() {
                     <ProtectedRoute>
                         <Layout>
                             <Profile />
+                        </Layout>
+                    </ProtectedRoute>
+                } />
+                <Route path="/searchforfriend" element={
+                    <ProtectedRoute>
+                        <Layout>
+                            <SearchForFriend />
                         </Layout>
                     </ProtectedRoute>
                 } />

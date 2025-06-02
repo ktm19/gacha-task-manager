@@ -27,6 +27,8 @@ function Profile() {
     setFriendsList([]);
     getFriendsList(username);
     fetchUserStatus(username);
+    // fetchInventory(username);
+    fetchShelfLayout(username);
   }
 
   const getFriendsList = (username) => {
@@ -39,7 +41,7 @@ function Profile() {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
           newFriendsList.push(
-            <button key={i} type="submit" onClick={() => {handleClick((response.data)[i]["name"]);}}>
+            <button key={i} type="submit" style={{margin: '5px', backgroundColor: "#52c98f", listStyleType: 'none'}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
               <li key={i}>{(response.data)[i]["name"]}</li>
             </button>
           );
@@ -224,6 +226,8 @@ function Profile() {
   // fix involved using the same login logic
   useEffect(() => {
     const username = localStorage.getItem('username');
+    console.log(username);
+
     if (!username) {
       setUsername("");
       return;
@@ -348,6 +352,13 @@ function Profile() {
                 "No friends added yet"
               )}
             </div>
+
+            <br></br>
+            <button onClick={() => navigate("/searchforfriend")}>
+              Search for a friend
+            </button>
+
+
           </div>
         </div>
       </div>

@@ -240,13 +240,13 @@ app.get("/getFriends", (req, res) => { //find friends of given username
 });
 
 
-app.post("/addFriend", async (req, res) => {
+app.post("/addFriend", (req, res) => {
   const username = req.body.username;
   const friend_name = req.body.friend_name;
 
   try {
     if (username == friend_name) {
-      return res.status(500).send("Cannot add yourself as a friend.");
+      return res.status(400).send("Cannot add yourself as a friend.");
     }
 
     const searchQuery = "SELECT * FROM friends WHERE username = ? AND name = ?";
@@ -256,24 +256,24 @@ app.post("/addFriend", async (req, res) => {
         return res.status(500).send("Error adding friend.");
       } 
       if (result.length != 0) {
-        return res.status(500).send("Already added " + friend_name + " as a friend.");
+        return res.status(400).send("Already added " + friend_name + " as a friend.");
       }
-      
-    });
 
-    const insertQuery = "INSERT INTO friends (username, name) VALUES (?, ?)";
-    connection.query(insertQuery, [username, friend_name], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error adding friend.");
-      }
-    });
-    connection.query(insertQuery, [friend_name, username], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error adding friend.");
-      }
-      return res.status(200).send("Friend added successfully: " + friend_name);
+      const insertQuery = "INSERT INTO friends (username, name) VALUES (?, ?)";
+      connection.query(insertQuery, [username, friend_name], (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding friend.");
+        }
+
+        connection.query(insertQuery, [friend_name, username], (err, result) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error adding friend.");
+          }
+          return res.status(200).send("Friend added successfully: " + friend_name);
+        });
+      });
     });
   } catch (error) {
     console.error(error);
@@ -282,13 +282,11 @@ app.post("/addFriend", async (req, res) => {
 });
 
 
-app.post("/removeFriend", async (req, res) => {
+app.post("/removeFriend", (req, res) => {
   const username = req.body.username;
   const friend_name = req.body.friend_name;
 
   try {
-    // TODO: do some error checking here
-
     const searchQuery = "SELECT * FROM friends WHERE username = ? AND name = ?";
     connection.query(searchQuery, [username, friend_name], (err, result) => {
       if (err) {
@@ -296,23 +294,24 @@ app.post("/removeFriend", async (req, res) => {
         return res.status(500).send("Error removing friend.");
       } 
       if (result.length == 0) {
-        return res.status(500).send("You are not friends with " + friend_name + ".");
+        return res.status(400).send("You are not friends with " + friend_name + ".");
       }
-    });
 
-    const removeQuery = "DELETE FROM friends WHERE username = ? AND name = ?;"
-    connection.query(removeQuery, [username, friend_name], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error removing friend.");
-      }
-    });
-    connection.query(removeQuery, [friend_name, username], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error removing friend.");
-      }
-      return res.status(200).send("Friend removed successfully: " + friend_name);
+      const removeQuery = "DELETE FROM friends WHERE username = ? AND name = ?;"
+      connection.query(removeQuery, [username, friend_name], (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error removing friend.");
+        }
+
+        connection.query(removeQuery, [friend_name, username], (err, result) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error removing friend.");
+          }
+          return res.status(200).send("Friend removed successfully: " + friend_name);
+        });
+      });
     });
   } catch (error) {
     console.error(error);

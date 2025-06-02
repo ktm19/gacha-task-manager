@@ -75,7 +75,10 @@ body {
 
 /* for text box submission forms */
 form{
+  width: 50%;
   display: flex;
+  margin: 0 auto;
+  align-self: center;
   flex-direction: column;
   gap: 0.5rem;
 }
@@ -115,4 +118,8 @@ form{
 
 .gold-gradient {
   background: var(--gold-gradient);
+}
+
+h1 {
+  margin-bottom: 20px;
 }
