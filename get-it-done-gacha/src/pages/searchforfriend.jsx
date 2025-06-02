@@ -138,8 +138,9 @@ function SearchForFriend() {
       <br></br>
 
       <p style={{marginBottom: '10px'}}>{searchResultMessage}</p>
-      {showSearchResults && <button type="submit" onClick={() => {add_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" style={{marginRight: '2em'}}> Add friend </button>}
-      {showSearchResults && <button type="submit" onClick = {() => {remove_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
+      <span>{showSearchResults && <button type="submit" style={{ marginRight: '1em'}} onClick={() => {add_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Add friend </button>}
+      {showSearchResults && <button type="submit" style={{ marginLeft: '1em'}} onClick = {() => {remove_friend(friend);}} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Remove friend </button>}
+      </span>
 
     </div>
   );

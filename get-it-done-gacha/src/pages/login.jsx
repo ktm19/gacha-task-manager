@@ -102,7 +102,7 @@ function Login() {
       <div style={{marginTop: '10px'}} className="mt-4">
         <p className="text-sm">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
+          <Link to="/register" className="a text-blue-500 hover:underline">
             Register here
           </Link>
         </p>

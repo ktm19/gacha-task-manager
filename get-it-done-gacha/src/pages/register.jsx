@@ -99,7 +99,7 @@ function Register() {
       <div style={{marginTop: '10px'}} className="mt-4">
         <p className="text-sm">
           Already Registered?{' '}
-          <Link to="/" className="text-blue-500 hover:underline">
+          <Link to="/" className="a text-blue-500 hover:underline">
             Login here
           </Link>
         </p>

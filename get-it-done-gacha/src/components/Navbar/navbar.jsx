@@ -21,7 +21,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
+    <nav style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }} className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
       <div className="max-w-screen-xl mx-auto px-4">
         <div className="flex justify-around items-center h-16 gap-4">
           {links.map((link) => (

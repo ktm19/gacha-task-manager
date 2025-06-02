@@ -22,13 +22,18 @@ function Profile() {
   const [showImageSelector, setShowImageSelector] = useState(false);
   const [inventoryItems, setInventoryItems] = useState([]);
 
-  const handleClick = (username) => {
-    setUsername(username);
+  const handleClick = (user) => {
+    const origUser = localStorage.getItem('username');
+
+    console.log("user: " + user + ", origUser: " + origUser);
     setFriendsList([]);
-    getFriendsList(username);
-    fetchUserStatus(username);
-    // fetchInventory(username);
-    fetchShelfLayout(username);
+    getFriendsList(user);
+    fetchUserStatus(user);
+    setInventoryItems([]);
+    if (user == origUser) {
+      fetchInventory(origUser);
+    }
+    fetchShelfLayout(user);
   }
 
   const getFriendsList = (username) => {
@@ -332,6 +337,7 @@ function Profile() {
           ))}
         </div>
         <button 
+          style={{backgroundColor: '#f5e7d2'}}
           className="close-button"
           onClick={() => setShowImageSelector(false)}
         >
@@ -342,10 +348,10 @@ function Profile() {
     )}
 
         {/* Friends Section */}
-        <div className="section">
+        <div style={{ display: 'flex', justifyContent: 'center' }}  className="section">
           <h2 className="section-title">Friends</h2>
           <div className="section-content">
-            <div className="friends-list">
+            <div style={{ marginRight: '3em'}} className="friends-list">
               {friendsList.length > 0 ? (
                 <ul>{friendsList}</ul>
               ) : (
