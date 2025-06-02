@@ -379,9 +379,123 @@ app.put("/updateUserStatus", async (req, res) => {
     return res.status(500).send("Server error.");
   }
 });
-
 /* USER STATUS ENDPOINTS */
 
+/* INVENTORY ENDPOINTS */
+app.get('/inventory', (req, res) => {
+  const username = req.query.username;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  // Query inventory directly with username
+  connection.query(
+    "SELECT item_name, img_path, item_copies FROM `main_db`.`inventory` WHERE username = ?",
+    [username],
+    (error, inventoryResults) => {
+      if (error) {
+        console.error('Database error:', error);
+        console.error(error.message); // Log the specific error message
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      console.log('Query executed for username:', username);
+      console.log('Inventory Results:', JSON.stringify(inventoryResults, null, 2));
+      res.json(inventoryResults);
+    }
+  );
+});
+
+/* none of the shelf code has been tested yet, so it may not work as expected */
+
+// Get user's shelf layout
+app.get('/getShelf', (req, res) => {
+  const username = req.query.username;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  connection.query(
+    "SELECT users.username, shelf.slot_1, shelf.slot_2, shelf.slot_3, shelf.slot_4 FROM `main_db`.`users` LEFT JOIN `main_db`.`shelf` ON users.user_id = shelf.user_id WHERE username = ?",
+    [username],
+    (error, results) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Convert row format to array format expected by frontend
+      const slots = [
+        results[0].slot1 || null,
+        results[0].slot2 || null,
+        results[0].slot3 || null,
+        results[0].slot4 || null
+      ];
+
+      res.json({ slots });
+    }
+  );
+});
+
+// Update user's shelf layout
+app.put('/updateShelf', (req, res) => {
+  const username = req.query.username;
+  const { slots } = req.body;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  if (!Array.isArray(slots) || slots.length !== 4) {
+    return res.status(400).json({ error: 'Invalid slots format' });
+  }
+
+  // First get user ID
+  connection.query(
+    "SELECT id FROM `main_db`.`users` WHERE username = ?",
+    [username],
+    (error, userResults) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (userResults.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userId = userResults[0].id;
+
+      // Then upsert the shelf layout
+      connection.query(
+        `INSERT INTO \`gacha-db\`.\`shelf\` (user_id, slot1, slot2, slot3, slot4) 
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE 
+         slot1 = VALUES(slot1),
+         slot2 = VALUES(slot2),
+         slot3 = VALUES(slot3),
+         slot4 = VALUES(slot4)`,
+        [userId, slots[0], slots[1], slots[2], slots[3]],
+        (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          res.json({ message: 'Shelf updated successfully' });
+        }
+      );
+    }
+  );
+});
+/* shelf code ends here */
+/* INVENTORY ENDPOINTS */
 
 // Use port 8080 by default, unless configured differently in Google Cloud
 const port = process.env.PORT || 8080;
