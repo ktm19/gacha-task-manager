@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "concurrently": "^9.1.2",
     "react": "^19.1.0"
+  },
+  "scripts": {
+    "start": "concurrently \"cd backend && node index.js\" \"cd get-it-done-gacha && npm run dev\"",
+    "start-prod": "concurrently \"cd frontend && npm run dev\" \"cd backend && node index.js\"",
+    "start-debug": "concurrently \"ls\" \"ls frontend\""
   }
 }
