@@ -51,7 +51,7 @@ function Profile() {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
           newFriendsList.push(
-            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none'}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
+            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none', 'background-color': "#662d2d"}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
               <li key={i}>{(response.data)[i]["name"]}</li>
             </button>
           );
@@ -248,13 +248,10 @@ function Profile() {
   // fix involved using the same login logic
   useEffect(() => {
     const username = localStorage.getItem('username');
-    console.log(username);
-
     if (!username) {
       setUsername("");
       return;
     }
-    
     setUsername(username);
     setDisplayUser(username);
     fetchUserStatus(username);
@@ -416,7 +413,9 @@ function Profile() {
             </div>
 
             <br></br>
-            <button onClick={() => navigate("/searchforfriend")}>
+            <button 
+            style={{margin: '5px', 'background-color': "#662d2d"}}
+            onClick={() => navigate("/searchforfriend")}>
               Search for a friend
             </button>
 

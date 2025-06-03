@@ -204,13 +204,15 @@ function Gacha() {
     //     syncDB();
     // }, []);
     return (
-        <b>I LOVE GAMBLING!!
+        <b>
+            <h2>Gacha</h2>
+            <p></p>
             <p>Pulls: {pulls}</p>
             <p>Pity: {pity}</p>
-            <motion.button onClick={singlePull} style={{margin: '5px'}}
+            <motion.button onClick={singlePull} style={{margin: '5px', 'background-color': "#662d2d"}}
                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x1 Pull</motion.button>
-            <motion.button onClick={tenPull} style={{margin: '5px'}} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <motion.button onClick={tenPull} style={{margin: '5px', 'background-color': "#662d2d"}} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x10 Pull
             </motion.button>
 
