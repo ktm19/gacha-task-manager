@@ -64,6 +64,7 @@ function Login() {
   
   useEffect(() => {
     const username = localStorage.getItem('username');
+    
     if (!username) {
       return;
     }
