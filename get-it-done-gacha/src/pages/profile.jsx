@@ -262,8 +262,8 @@ function Profile() {
       </div>
 
       {/* Status Box */}
+      <div> <h2 className="status-label">Status</h2> </div>
       <div className="status-box">
-        <div className="status-label">Status</div>
         <div className="status-content">
           {username ? (
             <>
