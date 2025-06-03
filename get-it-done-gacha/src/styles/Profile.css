@@ -66,29 +66,28 @@
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     padding: 16px;
     color: var(--text-primary);
-    padding: clamp(12px, 1.5vw, 16px);
+    display: flex;
+    align-items: center;
 }
 
 .status-label {
-    position: absolute;
-    left: 16px;
-    top: 47%;
-    transform: translateY(-50%);
-    font-size: clamp(48px, 8vh, 80px);
+    font-size: 24px;
     font-weight: 600;
-    color: var(--text-primary);
-    opacity: 0.1;
+    color: #4b5563;
+    margin-right: 20px;
+    min-width: 80px;
     pointer-events: none;
     user-select: none;
 }
 
 .status-content {
-    width: 100%;
-    height: 100%;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    height: 80%;
+    width: 100%;
 }
 
 .status-text {
@@ -98,11 +97,10 @@
 }
 
 .status-textarea {
-    width: calc(90% - 14vh - 64px);
+    margin-top: 20px;
+    width: 100%;
     min-height: 1.5em;
     height: auto;
-    margin-left: calc(28vh + 32px);
-    margin-right: 100px;
     padding: 8px;
     border: none;
     font-size: 1.2rem;
@@ -112,14 +110,13 @@
     text-align: center;
     background: transparent;
     line-height: 1.5;
-    display: block;
-    position: relative;
-    top: 36%;
-    transform: translateY(-50%);
     overflow: visible;
     white-space: pre-wrap;
     word-wrap: break-word;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .status-textarea:focus {
@@ -196,9 +193,7 @@
     color: var(--text-primary);
     transition: all 0.3s ease;
     aspect-ratio: 1;
-    width: 100%;
     padding: 1rem;
-    background-size: contain !important;
 }
 
 .shelf-item:hover {
@@ -228,13 +223,23 @@
 }
 
 .modal-content {
-  background: var(--surface);
+  background: var(--color-surface);
   padding: clamp(16px, 2vw, 24px);
   border-radius: 12px;
   width: min(81vw, 720px);
   max-width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.modal-content h3 {
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
 .image-grid {
@@ -247,62 +252,46 @@
 .image-option {
   padding: 0.5rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
   text-align: center;
 }
 
 .image-option:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .image-option img {
   width: 100%;
   height: auto;
   border-radius: 4px;
+  background: transparent;
 }
 
 .image-option span {
   display: block;
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: var(--text-primary);
+  color: var(--color-text);
 }
 
 .close-button {
   width: 100%;
   padding: 0.75rem;
-  background: var(--primary);
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
   border: none;
   border-radius: 8px;
-  color: var(--background);
   font-weight: 600;
   cursor: pointer;
   margin-top: 1rem;
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .close-button:hover {
-  opacity: 0.9;
-}
-
-/* update the existing shelf-item class */
-.shelf-item {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-  aspect-ratio: 1;
-  padding: 1rem;
-}
-
-.shelf-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: var(--color-primary-hover);
 }
 

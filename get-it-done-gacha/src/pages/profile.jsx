@@ -11,6 +11,7 @@ axios.defaults.withCredentials = true;
 function Profile() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
+  const [displayUser, setDisplayUser] = useState("");
   const [friendsList, setFriendsList] = useState([]);
   const [userStatus, setUserStatus] = useState("");
   const [error, setError] = useState("");
@@ -25,6 +26,8 @@ function Profile() {
     const origUser = localStorage.getItem('username');
 
     console.log("user: " + user + ", origUser: " + origUser);
+    setDisplayUser(user);
+    console.log("set display user to " + user);
     setFriendsList([]);
     getFriendsList(user);
     fetchUserStatus(user);
@@ -144,11 +147,13 @@ function Profile() {
 
   /* shelf image selection logic */
   const handleSlotClick = (index) => {
+    if (username != displayUser) return;
     setActiveSlot(index);
     setShowImageSelector(true);
   };
 
   const handleSlotRightClick = (e, index) => {
+    if (username != displayUser) return;
     e.preventDefault(); // Prevent the default context menu
     if (selectedImages[index]) {
       const newSelectedImages = [...selectedImages];
@@ -238,6 +243,7 @@ function Profile() {
     }
     
     setUsername(username);
+    setDisplayUser(username);
     fetchUserStatus(username);
     getFriendsList(username);
     fetchInventory(username);
@@ -250,27 +256,33 @@ function Profile() {
       <div className="username">
         <h2>
           <Link to={`/dashboard`} className="username-link">
-            {username || "Guest"}
+            {displayUser || "Guest"}
           </Link>
         </h2>
       </div>
 
       {/* Status Box */}
+      <div> <h2 className="status-label">Status</h2> </div>
       <div className="status-box">
-        <span className="status-label">Status</span>
         <div className="status-content">
           {username ? (
             <>
               <textarea
                 value={userStatus}
                 onChange={(e) => {
+                  if (username != displayUser) return;
                   const newStatus = e.target.value;
                   if (newStatus.length <= maxStatusLength) {
                     setUserStatus(newStatus);
                   }
                 }}
-                onBlur={() => updateStatus(userStatus)}
+                onBlur={() => {
+                  if (username != displayUser) return;
+                  updateStatus(userStatus) 
+                  }
+                }
                 onKeyDown={(e) => {
+                  if (username != displayUser) return;
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     e.target.blur();
@@ -336,7 +348,6 @@ function Profile() {
           ))}
         </div>
         <button 
-          style={{backgroundColor: '#f5e7d2'}}
           className="close-button"
           onClick={() => setShowImageSelector(false)}
         >

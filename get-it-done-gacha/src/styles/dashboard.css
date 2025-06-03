@@ -437,10 +437,14 @@ select.form-control {
 }
 
 /* Dashboard Specific Styles */
-*, #root {
-    background-color: var(--color-background);
+/* changed to make less universal */
+#root {
     color: var(--color-text);
     font-family: var(--font-family-base);
+}
+
+.dashboard-container {
+    background-color: var(--color-background);
 }
 
 body {
