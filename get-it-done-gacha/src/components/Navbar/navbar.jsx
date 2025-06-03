@@ -25,11 +25,12 @@ const Navbar = () => {
       <div className="max-w-screen-xl mx-auto px-4">
         <div className="flex justify-around items-center h-16 gap-4">
           {links.map((link) => (
-            <button
+            <button 
+              
               key={link.path}
               onClick={() => (link.path === currentPath) ? navigate(0) : navigate(link.path)}
               // disabled={link.path === currentPath}
-              style={{margin: '5px'}}
+              style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}}
               className={`flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 transition-all duration-200 ${
                 link.path === currentPath
                   ? 'bg-blue-500 text-white border-blue-500'
@@ -41,7 +42,7 @@ const Navbar = () => {
           ))}
           <button
             onClick={handleLogout}
-            style={{margin: '5px'}}
+            style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}}
             className="flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 border-transparent text-gray-600 hover:text-red-500 hover:border-red-500 transition-all duration-200"
           >
             Logout

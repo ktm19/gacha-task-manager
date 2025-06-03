@@ -1,8 +1,12 @@
+:root {
+    --button-background: #662d2d;
+}
+
 .profile-container {
     height: 85vh;
     width: 90vw;
     margin: 0 auto;
-    padding: clamp(16px, 2vw, 24px);
+    padding: 0px clamp(8px, 2vw, 24px); /*clamp(16px, 2vw, 24px)*/
     position: relative;
     box-sizing: border-box;
     overflow: hidden;
@@ -40,8 +44,9 @@
     font-weight: bold;
     margin-bottom: 24px;
     color: var(--text-primary);
-    align-self: flex-start;
-    margin-left: 5%;
+    /* align-self: flex-start; */
+    align-self: center;
+    /* margin-left: 5%; */
 }
 
 .username-link {
@@ -57,10 +62,10 @@
 
 .status-box {
     position: relative;
-    width: 90%;
-    min-height: 150px;
-    height: min(20vh, 200px);
-    margin: 0 auto clamp(16px, 2vh, 32px) auto;
+    width: 74%;
+    /* min-height: 100px; */
+    height: min(7vh, 100px); /*min(8vh, 150px)*/
+    margin: -25px auto clamp(16px, 2vh, 32px) auto;
     background-color: var(--surface);
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -71,10 +76,13 @@
 }
 
 .status-label {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: #4b5563;
-    margin-right: 20px;
+    /* margin-right: 20px; */
+    align-self: center;
+    margin-top: -45px;
+    /* margin-right: 1027gipx; */
     min-width: 80px;
     pointer-events: none;
     user-select: none;
@@ -86,7 +94,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 80%;
+    height: 60%;
     width: 100%;
 }
 
@@ -131,7 +139,7 @@
 
 .character-counter {
     position: absolute;
-    bottom: 8px;
+    bottom: 0px;
     right: 16px;
     font-size: 0.875rem;
     color: #9ca3af;
@@ -142,8 +150,9 @@
     gap: clamp(16px, 2vw, 24px);
     flex: 1;
     overflow: hidden;
-    width: 90%;
+    width: 77%;
     margin: 0 auto;
+    margin-top: -10px;
 }
 
 .section {
@@ -171,8 +180,9 @@
     flex: 1;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
     overflow-y: auto;
-    width: 90%;
-    margin: 0 auto;
+    width: 85%;
+    margin: auto;
+    margin-bottom: 1.5em;
 }
 
 .shelf-grid {
@@ -180,7 +190,9 @@
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(8px, 1.5vw, 16px);
     height: 100%;
+    width: 85%;
     padding: 1rem;
+    margin-left: 6%;
 }
 
 .shelf-item {
