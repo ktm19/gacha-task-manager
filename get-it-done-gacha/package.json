@@ -17,6 +17,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "favicon": "^0.0.2",
     "framer-motion": "^12.15.0",
     "mysql": "^2.18.1",
     "react": "^19.1.0",

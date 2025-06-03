@@ -55,7 +55,7 @@ var three = [
         name: "SHEBANG!",
         rarity: 3,
         description: "",
-        imagePath: "three/SHEBANG.PNG" 
+        imagePath: "three/shebang.PNG" 
     },
     {
         name: "Tangled Mouse",

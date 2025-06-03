@@ -1,0 +1,25 @@
+{
+    "three": {
+        "berg_shirt": "Professor Smallberg's shirt - suprisingly not stained by coffee...",
+        "bliss_background": "A callback to simpler times.",
+        "broken_chalk": "Like a worm, chalk does not die when bisected.",
+        "fahrenheit": "Found at the UCLA Discount store. 1 gram of caffeine...",
+        "haunted_box": "The horrors contained inside the box frighten you. And your GPA.",
+        "impostor": "Who is this man",
+        "lost_hydroflask": "Forever laid to rest in the waterbottle graveyard.",
+        "shebang": "It's dangerous to go alone! Take this.",
+        "tangled_mouse": "Finally fished out of a backpack.",
+        "terminuwu": "If only all terminals looked like this.",
+        "your_best_friend": "He's always here for you."
+    },
+    "four": {
+        "charlton": "TA Charlton, ready to help with your coding questions.",
+        "elaine": "TA Elaine, debugging expert extraordinaire.",
+        "eric": "Overloard of all LAs.",
+        "kaixuan": "TA Kaixuan, your guide through the world of computing.",
+        "nikhil": "TA Nikhil, ready to explain any CS concept.",
+        "omar": "grep 'G\\.O\\.A\\.T\\.'",
+        "shaina": "TA Shaina, helping students one bug at a time.",
+        "tom": "TA Tom, turning coding challenges into opportunities."
+    }
+}
