@@ -54,7 +54,7 @@ export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlacehold
             ))}
             <button 
                 type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 background-color:#662d2d"
             >
                 Submit
             </button>
