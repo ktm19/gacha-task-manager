@@ -89,23 +89,35 @@ useEffect(() => {
   };
 
   const checkLoginStatus = async () => {
-    try {
-      const response = await fetch("/login", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.loggedIn) {
-          setUser(data.user);
-          setIsLoggedIn(true);
-        }
+    // try {
+    //   const response = await fetch("/login", {
+    //     method: "GET",
+    //     credentials: "include",
+    //   });
+    //   if (response.ok) {
+    //     const data = await response.json();
+    //     if (data.loggedIn) {
+    //       setUser(data.user);
+    //       setIsLoggedIn(true);
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error("Error checking login status:", error);
+    // } finally {
+    //   setLoading(false);
+    // }
+
+      const username = localStorage.getItem('username');
+      
+      if (!username) {
+        setIsLoggedIn(false);
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error checking login status:", error);
-    } finally {
+
+      setUser(username);
+      setIsLoggedIn(true);
       setLoading(false);
-    }
   };
 
   const fetchUserMoney = async () => {
@@ -140,7 +152,7 @@ useEffect(() => {
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
+        setUser(userData.username);
         setIsLoggedIn(true);
         setMessage("Logged in successfully!");
         setLoginData({ username: "", password: "" });
@@ -277,7 +289,6 @@ useEffect(() => {
     return (
       <div className="dashboard-container">
         <div className="auth-container">
-          <h1 className="title">Tasks</h1>
           {message && <div className="message">{message}</div>}
           
           {!showRegister ? (
@@ -365,7 +376,7 @@ useEffect(() => {
       <header className="dashboard-header">
         <h1 className="title">Tasks</h1>
         <div className="user-info">
-          <span>Welcome, {user?.username}!</span>
+          <span>Welcome, {user}!</span>
         </div>
         <div className="score-display">
           <span className="score-label">Total Pulls:</span>
