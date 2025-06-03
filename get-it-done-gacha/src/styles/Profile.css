@@ -57,10 +57,10 @@
 
 .status-box {
     position: relative;
-    width: 90%;
-    min-height: 150px;
-    height: min(20vh, 200px);
-    margin: 0 auto clamp(16px, 2vh, 32px) auto;
+    width: 74%;
+    min-height: 100px;
+    height: min(8vh, 150px);
+    margin: -25px auto clamp(16px, 2vh, 32px) auto;
     background-color: var(--surface);
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -71,10 +71,12 @@
 }
 
 .status-label {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: #4b5563;
     margin-right: 20px;
+    margin-top: -45px;
+    margin-right: 1027px;
     min-width: 80px;
     pointer-events: none;
     user-select: none;
@@ -86,7 +88,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 80%;
+    height: 60%;
     width: 100%;
 }
 
@@ -131,7 +133,7 @@
 
 .character-counter {
     position: absolute;
-    bottom: 8px;
+    bottom: 0px;
     right: 16px;
     font-size: 0.875rem;
     color: #9ca3af;
@@ -142,8 +144,9 @@
     gap: clamp(16px, 2vw, 24px);
     flex: 1;
     overflow: hidden;
-    width: 90%;
+    width: 77%;
     margin: 0 auto;
+    margin-top: -10px;
 }
 
 .section {
