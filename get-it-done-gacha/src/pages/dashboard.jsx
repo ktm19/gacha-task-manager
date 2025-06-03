@@ -277,7 +277,6 @@ useEffect(() => {
     return (
       <div className="dashboard-container">
         <div className="auth-container">
-          <h1 className="title">Tasks</h1>
           {message && <div className="message">{message}</div>}
           
           {!showRegister ? (

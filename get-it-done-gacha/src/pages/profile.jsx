@@ -48,7 +48,7 @@ function Profile() {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
           newFriendsList.push(
-            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none', 'background-color': "#662d2d"}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
+            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none', 'background-color': "#662d2d", 'color': "#f5efe0"}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
               <li key={i}>{(response.data)[i]["name"]}</li>
             </button>
           );
@@ -247,6 +247,7 @@ function Profile() {
     fetchShelfLayout(username);
   }, []); // No dependencies needed since we only want this to run once on mount
 
+  
   return (
     <div className="profile-container">
       {/* Username in top left */}
@@ -368,7 +369,7 @@ function Profile() {
 
             <br></br>
             <button 
-            style={{margin: '5px', 'background-color': "#662d2d"}}
+            style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}}
             onClick={() => navigate("/searchforfriend")}>
               Search for a friend
             </button>
