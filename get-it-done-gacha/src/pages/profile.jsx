@@ -235,13 +235,10 @@ function Profile() {
   // fix involved using the same login logic
   useEffect(() => {
     const username = localStorage.getItem('username');
-    console.log(username);
-
     if (!username) {
       setUsername("");
       return;
     }
-    
     setUsername(username);
     setDisplayUser(username);
     fetchUserStatus(username);

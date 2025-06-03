@@ -2,7 +2,7 @@
     height: 85vh;
     width: 90vw;
     margin: 0 auto;
-    padding: clamp(16px, 2vw, 24px);
+    padding: 0px clamp(8px, 2vw, 24px); /*clamp(16px, 2vw, 24px)*/
     position: relative;
     box-sizing: border-box;
     overflow: hidden;
@@ -58,8 +58,8 @@
 .status-box {
     position: relative;
     width: 74%;
-    min-height: 100px;
-    height: min(8vh, 150px);
+    /* min-height: 100px; */
+    height: min(7vh, 100px); /*min(8vh, 150px)*/
     margin: -25px auto clamp(16px, 2vh, 32px) auto;
     background-color: var(--surface);
     border-radius: 12px;
@@ -175,7 +175,8 @@
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
     overflow-y: auto;
     width: 90%;
-    margin: 0 auto;
+    margin: auto;
+    margin-bottom: 2em;
 }
 
 .shelf-grid {
@@ -183,7 +184,9 @@
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(8px, 1.5vw, 16px);
     height: 100%;
+    width: 85%;
     padding: 1rem;
+    margin-left: 4%;
 }
 
 .shelf-item {
