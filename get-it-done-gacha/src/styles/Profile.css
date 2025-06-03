@@ -1,3 +1,7 @@
+:root {
+    --button-background: #662d2d;
+}
+
 .profile-container {
     height: 85vh;
     width: 90vw;
