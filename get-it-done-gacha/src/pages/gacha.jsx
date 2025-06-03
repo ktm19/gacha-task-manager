@@ -25,6 +25,7 @@ import Modal from '../components/Modal/index';
 //import ModalChain from '../components/ModalChain/index';
 import {itemList} from '../../itemList';
 axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.withCredentials = true;
 
 function Gacha() {
     //console.log(itemList.fourStars[0].name);
@@ -39,7 +40,7 @@ function Gacha() {
     const [pity, setPity] = useState(0);
     const [returnText, setReturn] = useState("Close");
     //const [inventory, updateInventory] = useState([0, 0, 0]);
-    var user = "awong";
+    const [user, setUser] = useState("test");
 
     const [modalOpen, setModalOpen] = useState(false);
     const close = () => {
@@ -65,7 +66,7 @@ function Gacha() {
         var rand = Math.random() * 100;
         console.log(rand);
         var pull;
-        if (rand < 2) {
+        if (rand < 2 || (pity >= 80 && rand < 5) || pity >= 90) {
             pull = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
         } else if (rand < 14) {
             pull = itemList.fourStars[Math.floor(Math.random() * itemList.fourStars.length)];
@@ -81,7 +82,7 @@ function Gacha() {
             }
         }).then((response) => {
             //alert("Login successful! :)")
-            console.log(response.data);
+            //console.log(response.data);
             setPulls(response.data.money);
             setPity(response.data.pity);
         }).catch((error) => {
@@ -105,15 +106,20 @@ function Gacha() {
         }
         var pullArray = new Array(10);
         pullArray = pullArray.fill(0).map(() => roll());
+        console.log(pullArray);
+        if (pity + 10 >= 90 && !pullArray.some(e => e.rarity === 5)) {
+            pullArray[0] = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
+        }
+        console.log(pullArray);
         axios.put("/tenPull", {
             username: user,
             itemArray: pullArray
         }).then((response) => {
             setReturn("Continue");
             syncDB();
-            
             setItem(pullArray);
-            console.log(pullArray);
+            
+            //console.log(pullArray);
             if (modalOpen)
                 close();
             else
@@ -132,8 +138,6 @@ function Gacha() {
             }
         });
     }
-
-    
 
     function singlePull() {
         if (pulls <= 0) {
@@ -170,7 +174,19 @@ function Gacha() {
     }
 
     useEffect(() => {
-        syncDB();
+        axios.get("/login")
+      .then((response) => {
+        if (response.data.loggedIn === true) {
+          const username = response.data.user.username;
+          console.log('Logged in user:', username);
+          setUser(username);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to check login status:', error);
+        setError('Failed to check login status');
+      });
+      syncDB();
     }, []);
     return (
         <b>I LOVE GAMBLING!!

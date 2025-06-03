@@ -54,7 +54,7 @@ app.use(
 )
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
 console.log(join(__dirname, "public"));
 
@@ -97,9 +97,9 @@ app.get("/searchForUser", async (req, res) => {
 app.put("/pull", async (req, res) => {
   const username = req.body.username;
   const item = req.body.item;
-  var sql = "UPDATE users SET pity = pity + 1, money = money - 1 WHERE username = '" + username + "'";
-  //console.log(sql);
-  connection.query(sql, function(err, result) {
+  var sql = "UPDATE users SET pity = " + ((item.rarity == 5) ? "0" : " pity + 1") + ", money = money - 1 WHERE username = '" + username + "'";
+  console.log(sql);
+  connection.query(sql, function (err, result) {
     if (err) throw err;
     console.log("updated pity + pulls");
     //return res.status(200).send("Pity Update successful.");
@@ -107,42 +107,45 @@ app.put("/pull", async (req, res) => {
   console.log("adding to db");
   var inventoryQuery = "INSERT INTO inventory (username, item_name, img_path, item_rarity, item_copies) VALUES ('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1) ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
   console.log(inventoryQuery);
-  connection.query(inventoryQuery, function(err, result) {
+  connection.query(inventoryQuery, function (err, result) {
     if (err) throw err;
     console.log("updated pity, pulls, inventory x1");
     return res.status(200).send("Inventory/Pull Update successful.");
   });
 
-}); 
+});
 
-app.put("/tenPull", async(req,res) => {
+app.put("/tenPull", async (req, res) => {
   const username = req.body.username;
   const itemArray = req.body.itemArray;
-  console.log(itemArray);
-  var sql = "UPDATE users SET pity = pity + 10, money = money - 10 WHERE username = '" + username + "'";
+  //console.log(itemArray);
+  var pity = (itemArray.some(e => e.rarity === 5))? String((10 - 1 - itemArray.indexOf(itemArray.find((obj) => obj.rarity === 5)) )) : "pity + 10"; 
+  var sql = "UPDATE users SET pity = " + pity + ", money = money - 10 WHERE username = '" + username + "'";
   //console.log(sql);
-  connection.query(sql, function(err, result) {
+  connection.query(sql, function (err, result) {
     if (err) throw err;
     var inventoryQuery = "INSERT INTO inventory (username, item_name, img_path, item_rarity, item_copies) VALUES ";
+    var pityQuery = "";
     for (let item of itemArray) {
       inventoryQuery += "('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1), ";
-    }
-    inventoryQuery = inventoryQuery.slice(0,-2) + " ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
-    console.log(inventoryQuery);
-    console.log("updated pity + pulls");
-    connection.query(inventoryQuery, function(err, result) {
-      if (err) throw err;
-      console.log("updated pity, pulls, inventory x10");
-      return res.status(200).send("Inventory/Pull Update successful.");
+      }
+      console.log(itemArray);
+      inventoryQuery = inventoryQuery.slice(0, -2) + " ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
+      //console.log(inventoryQuery);
+      console.log("updated pity + pulls");
+      connection.query(inventoryQuery, function (err, result) {
+        if (err) throw err;
+        console.log("updated pity, pulls, inventory x10");
+        return res.status(200).send("Inventory/Pull Update successful.");
+      });
     });
-  });
 })
 
-app.put("/resetPity", async(req,res) => {
+app.put("/resetPity", async (req, res) => {
   const username = req.body.username;
   var sql = "UPDATE users SET pity = 0 WHERE username = '" + username + "'";
   //console.log(sql);
-  connection.query(sql, function(err, result) {
+  connection.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Reset pity");
     return res.status(200).send("Pity Update successful.");
@@ -186,7 +189,7 @@ app.get("/login", async (req, res) => {
   if (req.session.user) {
     res.send({ loggedIn: true, user: req.session.user });
   } else {
-    res.send({ loggedIn: false});
+    res.send({ loggedIn: false });
   }
 })
 
