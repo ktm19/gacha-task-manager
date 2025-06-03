@@ -86,6 +86,8 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    height: 80%;
+    width: 100%;
 }
 
 .status-text {
@@ -95,6 +97,7 @@
 }
 
 .status-textarea {
+    margin-top: 20px;
     width: 100%;
     min-height: 1.5em;
     height: auto;
@@ -107,11 +110,13 @@
     text-align: center;
     background: transparent;
     line-height: 1.5;
-    transform: translateY(-50%);
     overflow: visible;
     white-space: pre-wrap;
     word-wrap: break-word;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .status-textarea:focus {
