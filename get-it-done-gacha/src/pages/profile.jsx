@@ -336,7 +336,6 @@ function Profile() {
           ))}
         </div>
         <button 
-          style={{backgroundColor: '#f5e7d2'}}
           className="close-button"
           onClick={() => setShowImageSelector(false)}
         >
