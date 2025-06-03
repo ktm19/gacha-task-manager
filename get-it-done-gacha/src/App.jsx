@@ -31,20 +31,24 @@ import Directory from './pages/directory.jsx';
 import Layout from './components/Layout/layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import axios from 'axios';
-
+import Favicon from "react-favicon";
 // Configure axios defaults
 axios.defaults.withCredentials = true;
 
 function App() {
-
+    var faviconUrl = "three/terminuwu.png";
+    useEffect(() => {
+        document.title = 'Get It Done!';
+        
+      }, []);
     return (
         <Router>
+            <Favicon url={faviconUrl} />
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 {/* <Route path="/searchforfriend" element={<SearchForFriend />} /> */}
-                <Route path="/directory" element={<Directory />} />
-                
+                <Route path="/directory" element={<Directory />} />  
                 {/* Protected Routes with Navigation Bar */}
                 <Route path="/dashboard" element={
                     <ProtectedRoute>
