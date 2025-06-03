@@ -20,10 +20,10 @@ This program is free software: you can redistribute it and/or modify
 import React, { useState, useEffect } from 'react';
 import '../App.css' 
 import TextFieldSubmit from '../textFieldSubmit.jsx';
+import PasswordTextFieldSubmit from '../passwordTextFieldSubmit.jsx'
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
-axios.defaults.baseURL = 'http://localhost:8080';
+import { a } from 'framer-motion/client';
 
 function Login() {
   const navigate = useNavigate();
@@ -39,6 +39,7 @@ function Login() {
       alert("Login successful! :)")
       // console.log(response);
       // console.log("Logged In");
+      localStorage.setItem("username", un);
       navigate("/dashboard");
     }).catch((error) => {
       if (error.response) {
@@ -54,24 +55,26 @@ function Login() {
     });
   };
 
-  useEffect(() => {
-    axios.get("/login", { 
-      withCredentials: true 
-    }).then((response) => {
-      // console.log(response);
-      // console.log("Response Test");
-      if (response.data.loggedIn === true) {
-        console.log("Logged In: " + response.data.user.username);
-        navigate("/dashboard");
+  const logout = () => {
+    localStorage.removeItem("username");
+    navigate("/");
+    alert("Logged out successfully!");
+  }
 
-      }
-    });
-  }, []); // Empty dependency array means this runs once on component mount
+  
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      return;
+    }
+    
+    navigate("/dashboard");
+  }, []); // No dependencies needed since we only want this to run once on mount
 
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Login </h1>
-      <TextFieldSubmit 
+      <PasswordTextFieldSubmit 
         numFields={2} 
         onSubmit={(values) => {
           const [username, password] = values;
@@ -79,19 +82,11 @@ function Login() {
         }}
         fieldPlaceholders={['Username', 'Password']}
       />
-      <div className="mt-4">
+      <div style={{marginTop: '10px'}} className="mt-4">
         <p className="text-sm">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
+          <Link to="/register" className="a text-blue-500 hover:underline">
             Register here
-          </Link>
-        </p>
-      </div>
-      <div className="mt-4">
-        <p className="text-sm">
-          View the directory{' '}
-          <Link to="/directory" className="text-blue-500 hover:underline">
-            for testing
           </Link>
         </p>
       </div>

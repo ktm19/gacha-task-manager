@@ -8,7 +8,7 @@ This program is free software: you can redistribute it and/or modify
   (at your option) any later version.
 
   This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  but WITHOUT without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
@@ -24,6 +24,7 @@ import session from "express-session";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import path from "path";
 import { createEngine } from "express-react-views";
 import bcrypt from 'bcrypt'
 import connection from "./database.js";
@@ -34,8 +35,14 @@ const __dirname = join(dirname(__filename), "..");
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173'], //changed at 10:56AM 10/16/2023
   credentials: true,
+ /*changed at 10:56AM 10/16/2023
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cookie'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range', 'Set-Cookie'],
+  optionsSuccessStatus: 200
+  changed at 10:56AM 10/16/2023*/
 }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -47,23 +54,28 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: false,               // set to true with HTTPS
-      sameSite: 'lax',             // set to 'none' for cross-site cookies with HTTPS
-    }
+      /* changed at 11:10am 10/16/2023 ts lowkey dont work but keeping it here for reference
+      secure: false,                // keep false for local development
+      sameSite: 'none',            // required for cross-site cookie access
+      httpOnly: true,              // prevents client-side access to cookies
+       changed at 11:10am 10/16/2023 */
+    },
+    proxy: true                    // trust the reverse proxy 
   })
 )
 
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
-console.log(join(__dirname, "public"));
+
+app.use(express.urlencoded({extended: true}))
+// app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
+// console.log(join(__dirname, "public"));
 
 // For JSX
 app.set("views", join(__dirname, "get-it-done-gacha/src"));
 app.set("view engine", "jsx");
 app.engine("jsx", createEngine());
 
-app.get("/", (req, res) => res.send("Try: /status, /users, or /tasks/2"));
+// app.get("/", (req, res) => res.send("Try: /status, /users, or /tasks/2"));
 
 app.get("/status", function (req, res, next) { res.send("Success."); });
 
@@ -89,7 +101,7 @@ app.get("/searchForUser", async (req, res) => {
       const user = results[0];
       res.status(200).send(user);
     } else {
-      res.status(404).send("User not found :(: " + username);
+      res.status(404).send("User not found: " + username);
     }
   });
 });
@@ -151,6 +163,105 @@ app.put("/resetPity", async (req, res) => {
     return res.status(200).send("Pity Update successful.");
   });
 })
+
+
+app.get("/getUserMoney", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not logged in.");
+  }
+
+  const username = req.session.user.username;
+
+  try {
+    const query = "SELECT money FROM users WHERE username = ?";
+    connection.query(query, [username], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error fetching user money.");
+      }
+
+      if (results.length === 0) {
+        return res.status(404).send("User not found.");
+      }
+
+      res.status(200).json({
+        money: results[0].money
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+app.put("/completeTask", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not logged in.");
+  }
+
+  const username = req.session.user.username;
+  const taskProbability = req.body.probability; // Float between 0 and 1
+  const id = req.body.id;
+  // console.log("id: " + id);
+
+  if (!taskProbability || taskProbability < 0 || taskProbability > 1) {
+    return res.status(400).send("Invalid probability value.");
+  }
+
+  try {
+    // Generate random number to determine if user gets a pull
+    const randomValue = Math.random();
+    const earnedPull = randomValue < taskProbability;
+
+    const updateQuery = "UPDATE tasks SET is_completed = 1 WHERE task_id = ?";
+    connection.query(updateQuery, [id], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating completion status.");
+      }
+
+      if (earnedPull) {
+        // User earned a pull, increment money by 1
+        const updateQuery = "UPDATE users SET money = money + 1 WHERE username = ?";
+        connection.query(updateQuery, [username], (err, result) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error updating user money.");
+          }
+  
+          if (result.affectedRows === 0) {
+            return res.status(404).send("User not found.");
+          }
+  
+          console.log(`User ${username} earned a pull with probability ${taskProbability}`);
+          res.status(200).json({
+            earnedPull: true,
+            probability: taskProbability,
+            message: "Task completed! You earned 1 pull!"
+          });
+        });
+      } else {
+        // User didn't earn a pull, but task was still completed
+        console.log(`User ${username} didn't earn a pull with probability ${taskProbability}`);
+        res.status(200).json({
+          earnedPull: false,
+          probability: taskProbability,
+          message: "Task completed! No pull earned this time."
+        });
+      }
+
+
+    });
+
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+
+
 
 app.post("/register", async (req, res) => {
   const username = req.body.username;
@@ -223,20 +334,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/searchForUser", (req, res) => { //find user by username
-  const username = req.query.username;
-  const query = "SELECT * FROM users WHERE username = ?";
-  connection.query(query, [username], async (err, results) => {
-    if (err) throw err;
-    if (results.length > 0) {
-      const user = results[0];
-      res.status(200).send(user);
-    } else {
-      res.status(404).send("User not found :(");
-    }
-  });
-});
-
 app.get("/getFriends", (req, res) => { //find friends of given username
   const username = req.query.username;
   const query = "SELECT * FROM friends WHERE username = ?";
@@ -247,26 +344,40 @@ app.get("/getFriends", (req, res) => { //find friends of given username
 });
 
 
-app.post("/addFriend", async (req, res) => {
+app.post("/addFriend", (req, res) => {
   const username = req.body.username;
   const friend_name = req.body.friend_name;
 
   try {
-    // TODO: do some error checking here
+    if (username == friend_name) {
+      return res.status(400).send("Cannot add yourself as a friend.");
+    }
 
-    const insertQuery = "INSERT INTO friends (username, user_id, name, friend_id) VALUES (?, 0, ?, 0)";
-    connection.query(insertQuery, [username, friend_name], (err, result) => {
+    const searchQuery = "SELECT * FROM friends WHERE username = ? AND name = ?";
+    connection.query(searchQuery, [username, friend_name], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).send("Error adding friend.");
+      } 
+      if (result.length != 0) {
+        return res.status(400).send("Already added " + friend_name + " as a friend.");
       }
-    });
-    connection.query(insertQuery, [friend_name, username], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error adding friend.");
-      }
-      return res.status(200).send("Friend added successfully: " + friend_name);
+
+      const insertQuery = "INSERT INTO friends (username, name) VALUES (?, ?)";
+      connection.query(insertQuery, [username, friend_name], (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding friend.");
+        }
+
+        connection.query(insertQuery, [friend_name, username], (err, result) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error adding friend.");
+          }
+          return res.status(200).send("Friend added successfully: " + friend_name);
+        });
+      });
     });
   } catch (error) {
     console.error(error);
@@ -275,26 +386,36 @@ app.post("/addFriend", async (req, res) => {
 });
 
 
-app.post("/removeFriend", async (req, res) => {
+app.post("/removeFriend", (req, res) => {
   const username = req.body.username;
   const friend_name = req.body.friend_name;
 
   try {
-    // TODO: do some error checking here
+    const searchQuery = "SELECT * FROM friends WHERE username = ? AND name = ?";
+    connection.query(searchQuery, [username, friend_name], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error removing friend.");
+      } 
+      if (result.length == 0) {
+        return res.status(400).send("You are not friends with " + friend_name + ".");
+      }
 
-    const removeQuery = "DELETE FROM friends WHERE username = ? AND name = ?;"
-    connection.query(removeQuery, [username, friend_name], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error removing friend.");
-      }
-    });
-    connection.query(removeQuery, [friend_name, username], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error removing friend.");
-      }
-      return res.status(200).send("Friend removed successfully: " + friend_name);
+      const removeQuery = "DELETE FROM friends WHERE username = ? AND name = ?;"
+      connection.query(removeQuery, [username, friend_name], (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error removing friend.");
+        }
+
+        connection.query(removeQuery, [friend_name, username], (err, result) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error removing friend.");
+          }
+          return res.status(200).send("Friend removed successfully: " + friend_name);
+        });
+      });
     });
   } catch (error) {
     console.error(error);
@@ -320,12 +441,418 @@ app.route("/tasks/:task_id").get((req, res, next) => {
   );
 });
 
-// Use port 8080 by default, unless configured differently in Google Cloud
-const port = process.env.PORT || 8080;
-app.listen(port, "0.0.0.0", () => {
-  console.log(`App is running at: http://0.0.0.0:${port}`);
+/* USER STATUS ENDPOINTS */
+
+app.get("/getUserStatus", async (req, res) => {
+  const username = req.query.username;
+
+  if (!username) {
+    return res.status(400).send("Username is required.");
+  }
+
+  try {
+    const query = "SELECT status FROM users WHERE username = ?";
+    connection.query(query, [username], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error fetching user status.");
+      }
+      if (results.length === 0) {
+        return res.status(404).send("User not found.");
+      }
+      res.status(200).json({ status: results[0].status || '' });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
+});
+
+app.put("/updateUserStatus", async (req, res) => {
+  const username = req.query.username;
+  const status = req.body.status;
+
+  if (!username) {
+    return res.status(400).send("Username is required.");
+  }
+
+  try {
+    const updateQuery = "UPDATE users SET status = ? WHERE username = ?";
+    connection.query(updateQuery, [status, username], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating user status.");
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).send("User not found.");
+      }
+      res.status(200).json({ status: status });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
 });
 
 
+/* USER STATUS ENDPOINTS END */
 
+app.get("/getUserTasks", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+  
+  try {
+    const query = `
+      SELECT t.task_id AS id, t.name AS text, t.value/1000 AS points 
+      FROM tasks t
+      JOIN users u ON t.user_id = u.user_id
+      WHERE u.username = ? AND t.is_completed = 0
+    `;
+    
+    connection.query(query, [req.session.user.username], (err, results) => {
+      if (err) {
+        console.error("Error fetching tasks:", err);
+        return res.status(500).send("Error fetching tasks");
+      }
+      res.status(200).json({ tasks: results });
+    });
+  } catch (error) {
+    console.error("Error in getUserTasks:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+
+app.post("/createTask", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+  
+  try {
+    const { name, probability } = req.body;
+    const value = Math.round(probability * 1000);
+    
+    const userQuery = "SELECT user_id FROM users WHERE username = ?";
+    connection.query(userQuery, [req.session.user.username], (err, userResults) => {
+      if (err || userResults.length === 0) {
+        console.error("Error finding user:", err);
+        return res.status(500).send("Error creating task");
+      }
+      
+      const insertQuery = `
+        INSERT INTO tasks 
+        (user_id, name, description, value, is_completed, is_habit)
+        VALUES (?, ?, 'simple_task', ?, 0, 0)
+      `;
+      
+      connection.query(insertQuery, 
+        [userResults[0].user_id, name, value],
+        (err, result) => {
+          if (err) {
+            console.error("Error creating task:", err);
+            return res.status(500).send("Error creating task");
+          }
+          res.status(201).json({
+            id: result.insertId,
+            text: name,
+            points: probability,
+            state: 'entering'
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error in createTask:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+app.delete("/deleteTask/:taskId", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+  
+  try {
+    const deleteQuery = "DELETE FROM tasks WHERE task_id = ?";
+    connection.query(deleteQuery, [req.params.taskId], (err, result) => {
+      if (err) {
+        console.error("Error deleting task:", err);
+        return res.status(500).send("Error deleting task");
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).send("Task not found");
+      }
+      res.status(200).send("Task deleted successfully");
+    });
+  } catch (error) {
+    console.error("Error in deleteTask:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+
+/* INVENTORY ENDPOINTS */
+app.get('/inventory', (req, res) => {
+  const username = req.query.username;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  // Query inventory directly with username
+  connection.query(
+    "SELECT item_name, img_path, item_copies FROM `main_db`.`inventory` WHERE username = ?",
+    [username],
+    (error, inventoryResults) => {
+      if (error) {
+        console.error('Database error:', error);
+        console.error(error.message); // Log the specific error message
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      console.log('Query executed for username:', username);
+      console.log('Inventory Results:', JSON.stringify(inventoryResults, null, 2));
+      res.json(inventoryResults);
+    }
+  );
+});
+
+/* none of the shelf code has been tested yet, so it may not work as expected */
+
+// Get user's shelf layout
+app.get('/getShelf', (req, res) => {
+  const username = req.query.username;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  // First check if a shelf record exists and get item details in one query
+  const query = `
+    SELECT s.slot_1, s.slot_2, s.slot_3, s.slot_4,
+           i1.img_path as img_1, i2.img_path as img_2, i3.img_path as img_3, i4.img_path as img_4
+    FROM (SELECT * FROM \`main_db\`.\`shelf\` WHERE username = ?) s
+    LEFT JOIN \`main_db\`.\`inventory\` i1 ON s.slot_1 = i1.item_name AND i1.username = s.username
+    LEFT JOIN \`main_db\`.\`inventory\` i2 ON s.slot_2 = i2.item_name AND i2.username = s.username
+    LEFT JOIN \`main_db\`.\`inventory\` i3 ON s.slot_3 = i3.item_name AND i3.username = s.username
+    LEFT JOIN \`main_db\`.\`inventory\` i4 ON s.slot_4 = i4.item_name AND i4.username = s.username
+  `;
+
+  connection.query(query, [username], (error, results) => {
+    if (error) {
+      console.error('Database error:', error);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (results.length === 0) {
+      // No shelf exists yet, create it with null slots
+      connection.query(
+        "INSERT INTO `main_db`.`shelf` (username, slot_1, slot_2, slot_3, slot_4) VALUES (?, NULL, NULL, NULL, NULL)",
+        [username],
+        (error) => {
+          if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
+          }
+          // Return empty slots for new shelf
+          return res.json({
+            slots: [null, null, null, null],
+            images: [null, null, null, null]
+          });
+        }
+      );
+    } else {
+      // Return slots and their corresponding images
+      const slots = [
+        results[0].slot_1,
+        results[0].slot_2,
+        results[0].slot_3,
+        results[0].slot_4
+      ];
+      
+      const images = [
+        results[0].img_1,
+        results[0].img_2,
+        results[0].img_3,
+        results[0].img_4
+      ];
+
+      res.json({ slots, images });
+    }
+  });
+});
+
+
+// Update user's shelf layout
+app.put('/updateShelf', (req, res) => {
+  const username = req.query.username;
+  const { slots } = req.body;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  if (!Array.isArray(slots) || slots.length !== 4) {
+    return res.status(400).json({ error: 'Invalid slots format' });
+  }
+
+  // First, check if the unique index already exists, if not add it
+  connection.query(
+    "SHOW INDEXES FROM `main_db`.`shelf` WHERE Key_name = 'username_UNIQUE'",
+    (error, results) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      // If index doesn't exist, create it
+      if (results.length === 0) {
+        connection.query(
+          "ALTER TABLE `main_db`.`shelf` ADD UNIQUE INDEX `username_UNIQUE` (`username`)",
+          (error) => {
+            if (error) {
+              console.error('Database error:', error);
+              return res.status(500).json({ error: 'Database error' });
+            }
+          }
+        );
+      }
+
+      // Validate that user exists
+      connection.query(
+        "SELECT username FROM `main_db`.`users` WHERE username = ?",
+        [username],
+        (error, userResults) => {
+          if (error) {
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          if (userResults.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+          }
+
+          // Validate that the items being placed exist in the user's inventory
+          const nonNullSlots = slots.filter(item => item !== null);
+          if (nonNullSlots.length > 0) {
+            connection.query(
+              "SELECT item_name, img_path FROM `main_db`.`inventory` WHERE username = ? AND item_name IN (?)",
+              [username, nonNullSlots],
+              (error, inventoryResults) => {
+                if (error) {
+                  console.error('Database error:', error);
+                  return res.status(500).json({ error: 'Database error' });
+                }
+
+                const validItems = new Map(inventoryResults.map(row => [row.item_name, row.img_path]));
+                const invalidItems = nonNullSlots.filter(item => !validItems.has(item));
+
+                if (invalidItems.length > 0) {
+                  return res.status(400).json({ 
+                    error: 'Some items are not in your inventory',
+                    invalidItems 
+                  });
+                }
+
+                // First check if user exists in shelf table
+                connection.query(
+                  "SELECT username FROM `main_db`.`shelf` WHERE username = ?",
+                  [username],
+                  (error, shelfResults) => {
+                    if (error) {
+                      console.error('Database error:', error);
+                      return res.status(500).json({ error: 'Database error' });
+                    }
+
+                    const query = shelfResults.length === 0 
+                      ? "INSERT INTO `main_db`.`shelf` (username, slot_1, slot_2, slot_3, slot_4) VALUES (?, ?, ?, ?, ?)"
+                      : "UPDATE `main_db`.`shelf` SET slot_1 = ?, slot_2 = ?, slot_3 = ?, slot_4 = ? WHERE username = ?";
+                    
+                    const params = shelfResults.length === 0
+                      ? [username, slots[0], slots[1], slots[2], slots[3]]
+                      : [slots[0], slots[1], slots[2], slots[3], username];
+
+                    connection.query(query, params, (error, results) => {
+                      if (error) {
+                        console.error('Database error:', error);
+                        return res.status(500).json({ error: 'Database error' });
+                      }
+
+                      // Return both slots and their corresponding images
+                      const images = slots.map(slot => slot ? validItems.get(slot) : null);
+                      res.json({ 
+                        message: 'Shelf updated successfully',
+                        slots: slots,
+                        images: images
+                      });
+                    });
+                  }
+                );
+              }
+            );
+          } else {
+            // If all slots are null, check if user exists in shelf table first
+            connection.query(
+              "SELECT username FROM `main_db`.`shelf` WHERE username = ?",
+              [username],
+              (error, shelfResults) => {
+                if (error) {
+                  console.error('Database error:', error);
+                  return res.status(500).json({ error: 'Database error' });
+                }
+
+                const query = shelfResults.length === 0
+                  ? "INSERT INTO `main_db`.`shelf` (username, slot_1, slot_2, slot_3, slot_4) VALUES (?, ?, ?, ?, ?)"
+                  : "UPDATE `main_db`.`shelf` SET slot_1 = ?, slot_2 = ?, slot_3 = ?, slot_4 = ? WHERE username = ?";
+
+                const params = shelfResults.length === 0
+                  ? [username, slots[0], slots[1], slots[2], slots[3]]
+                  : [slots[0], slots[1], slots[2], slots[3], username];
+
+                connection.query(query, params, (error, results) => {
+                  if (error) {
+                    console.error('Database error:', error);
+                    return res.status(500).json({ error: 'Database error' });
+                  }
+                  res.json({ 
+                    message: 'Shelf updated successfully',
+                    slots: slots,
+                    images: [null, null, null, null]
+                  });
+                });
+              }
+            );
+          }
+        }
+      );
+    }
+  );
+});
+/* shelf code ends here */
+/* INVENTORY ENDPOINTS */
+
+// Use port 8080 by default, unless configured differently in Google Cloud
+
+// const port = process.env.PORT || 8080;
+// app.listen(port, "0.0.0.0", () => {
+//   console.log(`App is running at: http://0.0.0.0:${port}`);
+// });
+
+
+
+// --- Serve Static Frontend Files ---
+// Construct the path to the frontend build directory. Make sure to use the right line-- the first is for deployment with docker, and the second is for running locally
+// const frontendBuildPath = path.join(__dirname, 'frontend', 'dist');
+const frontendBuildPath = path.join(__dirname, 'get-it-done-gacha', 'dist'); 
+app.use(express.static(frontendBuildPath));
+
+// --- Catch-all for Frontend Routing ---
+// For any GET request that doesn't match an API route or a static file,
+// serve the frontend's index.html file. This is crucial for client-side routing.
+app.get('/{*any}', (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
+});
+
+const port = process.env.PORT || 8080;
+// --- Start Server ---
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+  console.log(`Frontend should be available at http://localhost:${port}/`);
+  console.log(`Serving static files from: ${frontendBuildPath}`);
+});
 

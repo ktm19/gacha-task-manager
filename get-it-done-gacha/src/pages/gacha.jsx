@@ -24,8 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Modal from '../components/Modal/index';
 //import ModalChain from '../components/ModalChain/index';
 import {itemList} from '../../itemList';
-axios.defaults.baseURL = 'http://localhost:8080';
-axios.defaults.withCredentials = true;
+
 
 function Gacha() {
     //console.log(itemList.fourStars[0].name);
@@ -40,7 +39,9 @@ function Gacha() {
     const [pity, setPity] = useState(0);
     const [returnText, setReturn] = useState("Close");
     //const [inventory, updateInventory] = useState([0, 0, 0]);
-    const [user, setUser] = useState("test");
+
+    const [user, setUser] = useState("");
+    // var user = "awong";
 
     const [modalOpen, setModalOpen] = useState(false);
     const close = () => {
@@ -75,14 +76,13 @@ function Gacha() {
         }
         return pull;
     }
-    function syncDB() {
+    function syncDB(user) {
         axios.get("/searchForUser", {
             params: {
                 username: user
             }
         }).then((response) => {
             //alert("Login successful! :)")
-            //console.log(response.data);
             setPulls(response.data.money);
             setPity(response.data.pity);
         }).catch((error) => {
@@ -98,6 +98,17 @@ function Gacha() {
             }
         });
     }
+    
+    useEffect(() => {
+        const username = localStorage.getItem('username');
+        // console.log(username);
+        if (!username) {
+            setUser("");
+            return;
+        }
+        setUser(username);
+        syncDB(username);
+    }, []);
 
     function tenPull() {
         if (pulls < 10) {
@@ -116,7 +127,8 @@ function Gacha() {
             itemArray: pullArray
         }).then((response) => {
             setReturn("Continue");
-            syncDB();
+            syncDB(user);
+
             setItem(pullArray);
             
             //console.log(pullArray);
@@ -156,7 +168,7 @@ function Gacha() {
             username: user,
             item: singleItem
         }).then((response) => {
-            syncDB();
+            syncDB(user);
             console.log("updating success");
         }).catch((error) => {
             if (error.response) {
@@ -173,7 +185,7 @@ function Gacha() {
 
     }
 
-    useEffect(() => {
+    /*useEffect(() => {
         axios.get("/login")
       .then((response) => {
         if (response.data.loggedIn === true) {
@@ -187,15 +199,18 @@ function Gacha() {
         setError('Failed to check login status');
       });
       syncDB();
-    }, []);
+    }, []);*/
+    // useEffect(() => {
+    //     syncDB();
+    // }, []);
     return (
         <b>I LOVE GAMBLING!!
             <p>Pulls: {pulls}</p>
             <p>Pity: {pity}</p>
-            <motion.button onClick={singlePull}
+            <motion.button onClick={singlePull} style={{margin: '5px'}}
                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x1 Pull</motion.button>
-            <motion.button onClick={tenPull} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <motion.button onClick={tenPull} style={{margin: '5px'}} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x10 Pull
             </motion.button>
 

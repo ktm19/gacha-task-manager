@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Enable CORS
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173', 'https://gacha-test-297999012574.us-west1.run.app/');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -42,6 +42,25 @@ app.use((req, res, next) => {
 app.options('*', (req, res) => {
   res.sendStatus(200);
 });
+
+// Ensure shelf table exists
+connection.query(
+  `CREATE TABLE IF NOT EXISTS \`gacha-db\`.\`shelf\` (
+    user_id INT PRIMARY KEY,
+    slot1 VARCHAR(255),
+    slot2 VARCHAR(255),
+    slot3 VARCHAR(255),
+    slot4 VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )`,
+  (error) => {
+    if (error) {
+      console.error('Error creating shelf table:', error);
+      return;
+    }
+    console.log('Shelf table exists or was created successfully');
+  }
+);
 
 // Ensure user_status column exists
 connection.query(
@@ -128,16 +147,6 @@ app.put('/updateUserStatus', (req, res) => {
   );
 });
 
-app.get('/users', (req, res) => {
-  connection.query(
-    "SELECT * FROM `gacha-db`.`users`",
-    (error, results, fields) => {
-      if(error) throw error;
-      res.json(results);
-    }
-  );
-});
-
 app.route('/tasks/:task_id')
   .get((req, res, next) => {
     connection.query(
@@ -149,6 +158,16 @@ app.route('/tasks/:task_id')
       }
     );
   });
+
+  app.get('/users', (req, res) => {
+  connection.query(
+    "SELECT * FROM `gacha-db`.`users`",
+    (error, results, fields) => {
+      if(error) throw error;
+      res.json(results);
+    }
+  );
+});
 
 // Add a test endpoint to verify the server is running
 app.get('/test', (req, res) => {

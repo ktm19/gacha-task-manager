@@ -4,22 +4,30 @@ import axios from 'axios';
 
 const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    axios.get("/login", { 
-      withCredentials: true 
-    }).then((response) => {
-      setIsAuthenticated(response.data.loggedIn === true);
-    }).catch((error) => {
-      console.error('Authentication check failed:', error);
-      setIsAuthenticated(false);
-    });
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get("/status", { 
+          withCredentials: true 
+        });
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  // Show nothing while checking authentication
-  if (isAuthenticated === null) {
-    return null;
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return <div>Loading...</div>; // You can replace this with a loading spinner
   }
 
   // Redirect to login if not authenticated
@@ -31,4 +39,4 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;
