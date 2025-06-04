@@ -46,6 +46,11 @@ function Directory() {
       name: 'Register',
       path: '/register',
       description: 'Create a new account'
+    },
+    {
+      name: 'Info',
+      path: '/info',
+      description: 'Welcome!'
     }
   ];
 
@@ -72,3 +77,8 @@ function Directory() {
 }
 
 export default Directory;
+
+
+
+
+

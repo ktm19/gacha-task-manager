@@ -22,6 +22,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/login.jsx";
+import Info from "./pages/info.jsx";
 import Register from "./pages/register.jsx";
 import Dashboard from "./pages/dashboard.jsx";
 import Habits from "./pages/habits.jsx";
@@ -47,6 +48,7 @@ function App() {
             <Favicon url={faviconUrl} />
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/info" element={<Info />} />
                 <Route path="/register" element={<Register />} />
                 {/* <Route path="/searchforfriend" element={<SearchForFriend />} /> */}
                 <Route path="/directory" element={<Directory />} />  
