@@ -207,6 +207,8 @@ function Gacha() {
         <b>
             <h2>Gacha</h2>
             <p></p>
+            <div><img src="banner.png" width="800" height="auto" border-radius="15px"/></div>
+            <p></p>
             <p>Pulls: {pulls}</p>
             <p>Pity: {pity}</p>
             <motion.button onClick={singlePull} style={{margin: '5px', 'background-color': "#662d2d"}}
