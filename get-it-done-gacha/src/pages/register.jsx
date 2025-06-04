@@ -34,6 +34,8 @@ function Register() {
     }).then((response) => {
       alert("Registration successful! :)")
       console.log(response);
+      localStorage.setItem("username", un);
+      navigate("/info");
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
@@ -88,6 +90,8 @@ function Register() {
   );
 }
 export default Register
+
+
 
 
 
