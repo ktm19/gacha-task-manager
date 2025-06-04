@@ -32,6 +32,10 @@ function SearchForFriend() {
   const [friend, setFriend] = useState("");
 
   const search = (username) => {
+    if (username == "") { // check to make sure username set
+      alert("Not logged in");
+      return;
+    }
     axios.get("/searchForUser?username=" + username).then((response) => {
       setSearchResultMessage("Found: " + (response.data)["username"]);
       setShowSearchResults(true);

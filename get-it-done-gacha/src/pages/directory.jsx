@@ -39,7 +39,7 @@ function Directory() {
     },
     {
       name: 'Login',
-      path: '/login',
+      path: '/',
       description: 'Sign in to your account'
     },
     {
