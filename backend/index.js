@@ -505,7 +505,7 @@ app.get("/getUserTasks", async (req, res) => {
       SELECT t.task_id AS id, t.name AS text, t.value/1000 AS points 
       FROM tasks t
       JOIN users u ON t.user_id = u.user_id
-      WHERE u.username = ? AND t.is_completed = 0
+      WHERE u.username = ? AND t.is_completed = 0 AND t.is_habit = 0
     `;
     
     connection.query(query, [req.session.user.username], (err, results) => {
@@ -585,6 +585,212 @@ app.delete("/deleteTask/:taskId", async (req, res) => {
   }
 });
 
+
+const checkAndResetHabits = async () => {
+  const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
+  
+  return new Promise((resolve, reject) => {
+    // Check if any habits need to be reset (completed yesterday or earlier)
+    const resetQuery = `
+      UPDATE tasks 
+      SET is_completed = 0, description = ? 
+      WHERE is_habit = 1 
+      AND is_completed = 1 
+      AND (description IS NULL OR description != ?)
+    `;
+    
+    connection.query(resetQuery, [today, today], (err, result) => {
+      if (err) {
+        console.error('Error resetting habits:', err);
+        reject(err);
+      } else {
+        console.log(`Reset ${result.affectedRows} completed habits for new day`);
+        resolve(result);
+      }
+    });
+  });
+};
+
+app.get("/getUserHabits", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+
+  try {
+    // First, reset habits if it's a new day
+    await checkAndResetHabits();
+
+    const query = `
+      SELECT task_id AS id, name, is_completed, description
+      FROM tasks t
+      JOIN users u ON t.user_id = u.user_id
+      WHERE u.username = ? AND t.is_habit = 1
+      ORDER BY t.task_id ASC
+    `;
+
+    connection.query(query, [req.session.user.username], (err, results) => {
+      if (err) {
+        console.error("Error fetching habits:", err);
+        return res.status(500).send("Error fetching habits");
+      }
+
+      res.status(200).json({ habits: results });
+    });
+  } catch (error) {
+    console.error("Error in getUserHabits:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+
+app.post("/createHabit", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+
+  try {
+    const { name } = req.body;
+    
+    if (!name || name.trim().length === 0) {
+      return res.status(400).send("Habit name is required");
+    }
+
+    if (name.length > 80) {
+      return res.status(400).send("Habit name too long");
+    }
+
+    // Check how many habits the user already has
+    const countQuery = "SELECT COUNT(*) as habitCount FROM tasks WHERE user_id = (SELECT user_id FROM users WHERE username = ?) AND is_habit = 1";
+    
+    connection.query(countQuery, [req.session.user.username], (err, countResults) => {
+      if (err) {
+        console.error("Error counting habits:", err);
+        return res.status(500).send("Error creating habit");
+      }
+
+      if (countResults[0].habitCount >= 4) {
+        return res.status(400).send("Maximum of 4 habits allowed");
+      }
+
+      // Get user_id first
+      const userQuery = "SELECT user_id FROM users WHERE username = ?";
+      connection.query(userQuery, [req.session.user.username], (err, userResults) => {
+        if (err || userResults.length === 0) {
+          console.error("Error finding user:", err);
+          return res.status(500).send("Error creating habit");
+        }
+
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        const insertQuery = `
+          INSERT INTO tasks
+          (user_id, name, description, value, is_completed, is_habit)
+          VALUES (?, ?, ?, 3, 0, 1)
+        `;
+
+        connection.query(insertQuery,
+          [userResults[0].user_id, name.trim(), today, 3],
+          (err, result) => {
+            if (err) {
+              console.error("Error creating habit:", err);
+              return res.status(500).send("Error creating habit");
+            }
+
+            res.status(201).json({
+              id: result.insertId,
+              name: name.trim(),
+              is_completed: false,
+              description: today
+            });
+          }
+        );
+      });
+    });
+  } catch (error) {
+    console.error("Error in createHabit:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+app.put("/completeHabit", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+
+  try {
+    const { habitId } = req.body;
+    
+    if (!habitId) {
+      return res.status(400).send("Habit ID is required");
+    }
+
+    // First, reset habits if it's a new day
+    await checkAndResetHabits();
+
+    // Verify the habit belongs to the user and is not already completed
+    const verifyQuery = `
+      SELECT t.task_id, t.is_completed, u.username
+      FROM tasks t
+      JOIN users u ON t.user_id = u.user_id
+      WHERE t.task_id = ? AND u.username = ? AND t.is_habit = 1
+    `;
+
+    connection.query(verifyQuery, [habitId, req.session.user.username], (err, results) => {
+      if (err) {
+        console.error("Error verifying habit:", err);
+        return res.status(500).send("Error completing habit");
+      }
+
+      if (results.length === 0) {
+        return res.status(404).send("Habit not found");
+      }
+
+      if (results[0].is_completed) {
+        return res.status(400).send("Habit already completed today");
+      }
+
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+      // Mark habit as completed and update the completion date
+      const updateHabitQuery = "UPDATE tasks SET is_completed = 1, description = ? WHERE task_id = ?";
+      connection.query(updateHabitQuery, [today, habitId], (err, result) => {
+        if (err) {
+          console.error("Error updating habit:", err);
+          return res.status(500).send("Error completing habit");
+        }
+
+        // Give user 3 pulls
+        const updateMoneyQuery = "UPDATE users SET money = money + 3 WHERE username = ?";
+        connection.query(updateMoneyQuery, [req.session.user.username], (err, result) => {
+          if (err) {
+            console.error("Error updating user money:", err);
+            return res.status(500).send("Error completing habit");
+          }
+
+          if (result.affectedRows === 0) {
+            return res.status(404).send("User not found");
+          }
+
+          console.log(`User ${req.session.user.username} completed habit ${habitId} and earned 3 pulls`);
+          res.status(200).json({
+            message: "Habit completed! You earned 3 pulls!",
+            earnedPulls: 3
+          });
+        });
+      });
+    });
+  } catch (error) {
+    console.error("Error in completeHabit:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+
+app.post("/resetAllHabits", async (req, res) => {
+  if (!req.session.user) return res.status(401).send("Not logged in");
+
+  try {
+    await checkAndResetHabits();
+    res.status(200).send("All habits reset successfully");
+  } catch (error) {
+    console.error("Error resetting habits:", error);
+    res.status(500).send("Server error");
+  }
+});
 
 /* INVENTORY ENDPOINTS */
 app.get('/inventory', (req, res) => {

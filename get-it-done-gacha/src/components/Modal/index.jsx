@@ -49,7 +49,7 @@ const Modal = ({ handleClose, item, ret}) => {
             animate="visible"
             exit="exit"
           >
-            <h2>{item.name}</h2> 
+            <h2 style={{marginBottom: 0}}>{item.name}</h2> 
             <img src={item.imagePath} width="300" height="300"/>
             <button style={{'background-color': "#662d2d"}} onClick={handleClose}>{ret}</button>
           </motion.div>

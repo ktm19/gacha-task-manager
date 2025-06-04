@@ -185,24 +185,6 @@ function Gacha() {
 
     }
 
-    /*useEffect(() => {
-        axios.get("/login")
-      .then((response) => {
-        if (response.data.loggedIn === true) {
-          const username = response.data.user.username;
-          console.log('Logged in user:', username);
-          setUser(username);
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to check login status:', error);
-        setError('Failed to check login status');
-      });
-      syncDB();
-    }, []);*/
-    // useEffect(() => {
-    //     syncDB();
-    // }, []);
     return (
         <b>
             <h2>Gacha</h2>
@@ -211,10 +193,10 @@ function Gacha() {
             <p></p>
             <p>Pulls: {pulls}</p>
             <p>Pity: {pity}</p>
-            <motion.button onClick={singlePull} style={{margin: '5px', 'background-color': "#662d2d"}}
+            <motion.button onClick={singlePull} style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}}
                 whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x1 Pull</motion.button>
-            <motion.button onClick={tenPull} style={{margin: '5px', 'background-color': "#662d2d"}} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <motion.button onClick={tenPull} style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 x10 Pull
             </motion.button>
 

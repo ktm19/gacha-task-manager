@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
 import '../styles/Profile.css';
-//import TextFieldSubmit from '../textFieldSubmit.jsx';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ItemCard from './itemcard';
 
 axios.defaults.withCredentials = true;
 
@@ -16,6 +16,9 @@ function Profile() {
   const [userStatus, setUserStatus] = useState("");
   const [error, setError] = useState("");
   const maxStatusLength = 100;
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [itemDescriptions, setItemDescriptions] = useState({});
 
   const [selectedImages, setSelectedImages] = useState(Array(4).fill(null));
   const [activeSlot, setActiveSlot] = useState(null);
@@ -48,7 +51,7 @@ function Profile() {
         const newFriendsList = [];
         for (let i = 0; i < response.data.length; i++) {
           newFriendsList.push(
-            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none', 'background-color': "#662d2d"}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
+            <button key={i} type="submit" style={{margin: '5px', listStyleType: 'none', 'background-color': "#662d2d", 'color': "#f5efe0"}} onClick={() => {handleClick((response.data)[i]["name"]);}}>
               <li key={i}>{(response.data)[i]["name"]}</li>
             </button>
           );
@@ -231,25 +234,34 @@ function Profile() {
     }
   };
 
+  const loadItemDescriptions = async () => {
+    try {
+      const response = await fetch('/itemDescriptions.json');
+      const data = await response.json();
+      setItemDescriptions({ ...data.three, ...data.four });
+    } catch (error) {
+      console.error('Failed to load item descriptions:', error);
+    }
+  };
+
   // fixed 12:30pm 5/31/25 YAYYYY
   // fix involved using the same login logic
   useEffect(() => {
     const username = localStorage.getItem('username');
-    console.log(username);
-
     if (!username) {
       setUsername("");
       return;
     }
-    
     setUsername(username);
     setDisplayUser(username);
     fetchUserStatus(username);
     getFriendsList(username);
     fetchInventory(username);
     fetchShelfLayout(username);
+    loadItemDescriptions();
   }, []); // No dependencies needed since we only want this to run once on mount
 
+  
   return (
     <div className="profile-container">
       {/* Username in top left */}
@@ -310,52 +322,84 @@ function Profile() {
           <div className="section-content">
             <div className="shelf-grid">
               {Array(4).fill(null).map((_, i) => (
-            <div
-            key={i}
-            className="shelf-item"
-            onClick={() => handleSlotClick(i)}
-            onContextMenu={(e) => handleSlotRightClick(e, i)}
-            title={selectedImages[i] ? "Right-click to remove item" : "Click to add an item"}
-            style={{
-              cursor: 'pointer',
-              background: selectedImages[i] 
-                ? `url(${selectedImages[i]}) center/contain no-repeat`
-                : 'rgba(255, 255, 255, 0.05)',
-            }}
-        > 
-          {!selectedImages[i] && <span>Click to add item</span>}
+                <div
+                  key={i}
+                  className="shelf-item"
+                  onClick={() => handleSlotClick(i)}
+                  onContextMenu={(e) => handleSlotRightClick(e, i)}
+                  onMouseEnter={() => {
+                    if (selectedImages[i]) {
+                      // extract the filename from the path
+                      const filename = selectedImages[i].split('/').pop();
+                      // Remove both .PNG and .jpg extensions and convert to lowercase to get img name to match
+                      // itemDesc...json
+                      const itemKey = filename.replace(/\.(png|jpg)$/i, '').toLowerCase();
+                      console.log('Looking up description for:', itemKey);
+                      const description = itemDescriptions[itemKey];
+                      if (description) {
+                        setHoveredItem({
+                          image: selectedImages[i],
+                          description: description
+                        });
+                      }
+                    }
+                  }}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  onMouseMove={(e) => {
+                    setMousePosition({
+                      x: e.clientX + 10,
+                      y: e.clientY + 10
+                    });
+                  }}
+                  title={selectedImages[i] ? "Right-click to remove item" : "Click to add an item"}
+                  style={{
+                    cursor: 'pointer',
+                    background: selectedImages[i] 
+                      ? `url(${selectedImages[i]}) center/contain no-repeat`
+                      : 'rgba(255, 255, 255, 0.05)',
+                  }}
+                > 
+                  {!selectedImages[i] && <span>Click to add item</span>}
+                </div>
+              ))}
             </div>
-        ))}
-      </div>
-    </div>
-  </div>
-
-  {/* Image Selector Modal */}
-  {showImageSelector && (
-    <div className="image-selector-modal">
-      <div className="modal-content">
-        <h3>Inventory</h3>
-        <div className="image-grid">
-          {inventoryItems.map((image) => (
-            <div
-              key={image.id}
-              className="image-option"
-              onClick={() => handleImageSelect(image.path)}
-            >
-              <img src={image.path} alt={image.name} />
-              <span>{image.name}</span>
-            </div>
-          ))}
+          </div>
         </div>
-        <button 
-          className="close-button"
-          onClick={() => setShowImageSelector(false)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-    )}
+
+        {hoveredItem && (
+          <ItemCard
+            image={hoveredItem.image}
+            description={hoveredItem.description}
+            position={mousePosition}
+          />
+        )}
+
+        {/* Image Selector Modal */}
+        {showImageSelector && (
+          <div className="image-selector-modal">
+            <div className="modal-content">
+              <h3>Inventory</h3>
+              <div className="image-grid">
+                {inventoryItems.map((image) => (
+                  <div
+                    key={image.id}
+                    className="image-option"
+                    onClick={() => handleImageSelect(image.path)}
+                  >
+                    <img src={image.path} alt={image.name} />
+                    <span>{image.name}</span>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="close-button"
+                onClick={() => setShowImageSelector(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Friends Section */}
         <div style={{ display: 'flex', justifyContent: 'center' }}  className="section">
@@ -371,7 +415,7 @@ function Profile() {
 
             <br></br>
             <button 
-            style={{margin: '5px', 'background-color': "#662d2d"}}
+            style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}}
             onClick={() => navigate("/searchforfriend")}>
               Search for a friend
             </button>

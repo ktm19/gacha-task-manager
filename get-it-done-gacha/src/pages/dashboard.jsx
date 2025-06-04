@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../styles/dashboard.css";
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const [tasks, setTasks] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [totalPulls, setTotalPulls] = useState(0); // Changed from totalScore to totalPulls (int)
@@ -37,11 +40,11 @@ useEffect(() => {
 }, [isLoggedIn]);
 
   // Fetch data on component mount if already logged in
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchUserMoney();
-    }
-  }, []); // Empty dependency array means it runs on every mount
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     fetchUserMoney();
+  //   }
+  // }, []); // Empty dependency array means it runs on every mount
 
   // Add window focus event listener to refetch data
   useEffect(() => {
@@ -89,23 +92,35 @@ useEffect(() => {
   };
 
   const checkLoginStatus = async () => {
-    try {
-      const response = await fetch("/login", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.loggedIn) {
-          setUser(data.user);
-          setIsLoggedIn(true);
-        }
+    // try {
+    //   const response = await fetch("/login", {
+    //     method: "GET",
+    //     credentials: "include",
+    //   });
+    //   if (response.ok) {
+    //     const data = await response.json();
+    //     if (data.loggedIn) {
+    //       setUser(data.user);
+    //       setIsLoggedIn(true);
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error("Error checking login status:", error);
+    // } finally {
+    //   setLoading(false);
+    // }
+
+      const username = localStorage.getItem('username');
+      
+      if (!username) {
+        setIsLoggedIn(false);
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error checking login status:", error);
-    } finally {
+
+      setUser(username);
+      setIsLoggedIn(true);
       setLoading(false);
-    }
   };
 
   const fetchUserMoney = async () => {
@@ -140,7 +155,7 @@ useEffect(() => {
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
+        setUser(userData.username);
         setIsLoggedIn(true);
         setMessage("Logged in successfully!");
         setLoginData({ username: "", password: "" });
@@ -274,90 +289,90 @@ useEffect(() => {
   }
 
   if (!isLoggedIn) {
-    return (
-      <div className="dashboard-container">
-        <div className="auth-container">
-          <h1 className="title">Tasks</h1>
-          {message && <div className="message">{message}</div>}
+    navigate("/");
+    // return (
+    //   <div className="dashboard-container">
+    //     <div className="auth-container">
+    //       {message && <div className="message">{message}</div>}
           
-          {!showRegister ? (
-            <form onSubmit={handleLogin} className="auth-form">
-              <h2>Login</h2>
-              <input
-                type="text"
-                placeholder="Username"
-                value={loginData.username}
-                onChange={(e) =>
-                  setLoginData({ ...loginData, username: e.target.value })
-                }
-                className="auth-input"
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginData.password}
-                onChange={(e) =>
-                  setLoginData({ ...loginData, password: e.target.value })
-                }
-                className="auth-input"
-                required
-              />
-              <button type="submit" className="auth-button">
-                Login
-              </button>
-              <p>
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowRegister(true)}
-                  className="link-button"
-                >
-                  Register here
-                </button>
-              </p>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} className="auth-form">
-              <h2>Register</h2>
-              <input
-                type="text"
-                placeholder="Username"
-                value={registerData.username}
-                onChange={(e) =>
-                  setRegisterData({ ...registerData, username: e.target.value })
-                }
-                className="auth-input"
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={registerData.password}
-                onChange={(e) =>
-                  setRegisterData({ ...registerData, password: e.target.value })
-                }
-                className="auth-input"
-                required
-              />
-              <button type="submit" className="auth-button">
-                Register
-              </button>
-              <p>
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowRegister(false)}
-                  className="link-button"
-                >
-                  Login here
-                </button>
-              </p>
-            </form>
-          )}
-        </div>
-      </div>
-    );
+    //       {!showRegister ? (
+    //         <form onSubmit={handleLogin} className="auth-form">
+    //           <h2>Login</h2>
+    //           <input
+    //             type="text"
+    //             placeholder="Username"
+    //             value={loginData.username}
+    //             onChange={(e) =>
+    //               setLoginData({ ...loginData, username: e.target.value })
+    //             }
+    //             className="auth-input"
+    //             required
+    //           />
+    //           <input
+    //             type="password"
+    //             placeholder="Password"
+    //             value={loginData.password}
+    //             onChange={(e) =>
+    //               setLoginData({ ...loginData, password: e.target.value })
+    //             }
+    //             className="auth-input"
+    //             required
+    //           />
+    //           <button type="submit" className="auth-button">
+    //             Login
+    //           </button>
+    //           <p>
+    //             Don't have an account?{" "}
+    //             <button
+    //               type="button"
+    //               onClick={() => setShowRegister(true)}
+    //               className="link-button"
+    //             >
+    //               Register here
+    //             </button>
+    //           </p>
+    //         </form>
+    //       ) : (
+    //         <form onSubmit={handleRegister} className="auth-form">
+    //           <h2>Register</h2>
+    //           <input
+    //             type="text"
+    //             placeholder="Username"
+    //             value={registerData.username}
+    //             onChange={(e) =>
+    //               setRegisterData({ ...registerData, username: e.target.value })
+    //             }
+    //             className="auth-input"
+    //             required
+    //           />
+    //           <input
+    //             type="password"
+    //             placeholder="Password"
+    //             value={registerData.password}
+    //             onChange={(e) =>
+    //               setRegisterData({ ...registerData, password: e.target.value })
+    //             }
+    //             className="auth-input"
+    //             required
+    //           />
+    //           <button type="submit" className="auth-button">
+    //             Register
+    //           </button>
+    //           <p>
+    //             Already have an account?{" "}
+    //             <button
+    //               type="button"
+    //               onClick={() => setShowRegister(false)}
+    //               className="link-button"
+    //             >
+    //               Login here
+    //             </button>
+    //           </p>
+    //         </form>
+    //       )}
+    //     </div>
+    //   </div>
+    // );
   }
 
   return (
@@ -365,7 +380,7 @@ useEffect(() => {
       <header className="dashboard-header">
         <h1 className="title">Tasks</h1>
         <div className="user-info">
-          <span>Welcome, {user?.username}!</span>
+          <span>Welcome, {user}!</span>
         </div>
         <div className="score-display">
           <span className="score-label">Total Pulls:</span>
@@ -400,9 +415,6 @@ useEffect(() => {
             <div key={task.id} className={`task-item ${task.state}`}>
               <div className="task-content">
                 <span className="task-text">{task.text}</span>
-                <span className="task-points">
-                  {(task.points * 100).toFixed(1)}% chance
-                </span>
               </div>
               <label className="checkbox-label">
                 <input
