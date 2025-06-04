@@ -16,6 +16,7 @@ const Navbar = () => {
 
   const links = [
     { path: '/dashboard', label: 'Dashboard' },
+    { path: '/habits', label: 'Habits' },
     { path: '/gacha', label: 'Gacha' },
     { path: '/profile', label: 'Profile' },
   ];

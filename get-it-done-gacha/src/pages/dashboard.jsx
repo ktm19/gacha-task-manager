@@ -399,9 +399,6 @@ useEffect(() => {
             <div key={task.id} className={`task-item ${task.state}`}>
               <div className="task-content">
                 <span className="task-text">{task.text}</span>
-                <span className="task-points">
-                  {(task.points * 100).toFixed(1)}% chance
-                </span>
               </div>
               <label className="checkbox-label">
                 <input

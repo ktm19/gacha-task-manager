@@ -24,6 +24,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
 import Dashboard from "./pages/dashboard.jsx";
+import Habits from "./pages/habits.jsx";
 import Gacha from './pages/gacha.jsx';
 import SearchForFriend from './pages/searchforfriend.jsx';
 import Profile from './pages/profile.jsx';
@@ -75,6 +76,13 @@ function App() {
                     <ProtectedRoute>
                         <Layout>
                             <Gacha />
+                        </Layout>
+                    </ProtectedRoute>
+                } />
+                <Route path="/habits" element={
+                    <ProtectedRoute>
+                        <Layout>
+                            <Habits />
                         </Layout>
                     </ProtectedRoute>
                 } />
