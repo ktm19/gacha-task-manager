@@ -112,7 +112,6 @@ function SearchForFriend() {
       <h1 className = "text-xl font-bold mb-4"> Search for a friend </h1>
       <TextFieldSubmit 
         numFields={1} 
-        // onSubmit={(values) => handleClick(values)} 
         onSubmit={(username) => search(username)}
         fieldPlaceholders={['Username']}
       />

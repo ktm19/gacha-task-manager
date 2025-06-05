@@ -388,21 +388,6 @@ app.post("/removeFriend", (req, res) => {
 
 app.get("/sus", (req, res, next) => { res.send("ඞ"); });
 
-app.get("/pog", (req, res) => { res.sendFile(join(__dirname, "get-it-done-gacha", "public", "pog.html")); });
-
-app.get("/supersus", (req, res) => { res.render("sus", { title: "ඞ" }); });
-
-app.route("/tasks/:task_id").get((req, res, next) => {
-  connection.query(
-    "SELECT * FROM `main_db`.`tasks` WHERE task_id = ?",
-    req.params.task_id,
-    (error, results, fields) => {
-      if (error) throw error;
-      res.json(results);
-    },
-  );
-});
-
 /* USER STATUS ENDPOINTS */
 
 app.get("/getUserStatus", async (req, res) => {
@@ -772,9 +757,6 @@ app.get('/inventory', (req, res) => {
         console.error(error.message); // Log the specific error message
         return res.status(500).json({ error: 'Database error' });
       }
-
-      console.log('Query executed for username:', username);
-      console.log('Inventory Results:', JSON.stringify(inventoryResults, null, 2));
       res.json(inventoryResults);
     }
   );
@@ -1010,8 +992,7 @@ const frontendBuildPath = path.join(__dirname, 'get-it-done-gacha', 'dist');
 app.use(express.static(frontendBuildPath));
 
 // --- Catch-all for Frontend Routing ---
-// For any GET request that doesn't match an API route or a static file,
-// serve the frontend's index.html file. This is crucial for client-side routing.
+// For any GET request that doesn't match an API route or a static file, serve the frontend's index.html file.
 app.get('/{*any}', (req, res) => {
   res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });

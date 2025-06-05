@@ -30,14 +30,14 @@ const Dashboard = () => {
   }, []);
 
   // fetch all user data when logged in
-useEffect(() => {
-  const fetchData = async () => {
-    if (isLoggedIn) {
-      await Promise.all([fetchUserMoney(), fetchUserTasks()]);
-    }
-  };
-  fetchData();
-}, [isLoggedIn]);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (isLoggedIn) {
+        await Promise.all([fetchUserMoney(), fetchUserTasks()]);
+      }
+    };
+    fetchData();
+  }, [isLoggedIn]);
 
   // focus event listener
   useEffect(() => {
@@ -71,7 +71,6 @@ useEffect(() => {
       });
       if (response.ok) {
         const data = await response.json();
-        // console.log(data);
         setTasks(data.tasks.map(task => ({
           ...task,
           state: 'visible',
@@ -106,7 +105,6 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setTotalPulls(data.money); 
-        // console.log("Fetched user money:", data.money);
       } else {
         console.error("Failed to fetch user money");
       }

@@ -18,7 +18,6 @@ This program is free software: you can redistribute it and/or modify
 ========================================================== */
 
 import mysql from 'mysql'
-// const mysql = require('mysql');
 
 var config = {
     user: process.env.DB_USER,

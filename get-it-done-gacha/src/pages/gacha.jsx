@@ -27,27 +27,19 @@ import {itemList} from '../../itemList';
 
 
 function Gacha() {
-    //console.log(itemList.fourStars[0].name);
     const open = () => setModalOpen(true);
-
-    // const [modalChainOpen, setModalChainOpen] = useState(false);
-    // const closeChain = () => setModalChainOpen(false);
-    // const openChain = () => setModalChainOpen(true);
 
     const [item, setItem] = useState([]);
     const [pulls, setPulls] = useState(0);
     const [pity, setPity] = useState(0);
     const [returnText, setReturn] = useState("Close");
-    //const [inventory, updateInventory] = useState([0, 0, 0]);
 
     const [user, setUser] = useState("");
-    // var user = "awong";
 
     const [modalOpen, setModalOpen] = useState(false);
     const close = () => {
         setModalOpen(false);
         if (item.length > 1) {
-            // console.log("chain");
             setItem(item.slice(1));
             open();
         } else if (item.length == 2)
@@ -65,7 +57,6 @@ function Gacha() {
          *  2%    5*
          */
         var rand = Math.random() * 100;
-        // console.log(rand);
         var pull;
         if (rand < 2 || (pity >= 80 && rand < 5) || pity >= 90) {
             pull = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
@@ -82,16 +73,13 @@ function Gacha() {
                 username: user
             }
         }).then((response) => {
-            //alert("Login successful! :)")
             setPulls(response.data.money);
             setPity(response.data.pity);
         }).catch((error) => {
             if (error.response) {
                 alert(error.response.data);
-                // console.log(error.response.data);
             } else if (error.request) {
                 alert("No response from server.");
-                // console.log("No response from server.");
             } else {
                 alert("A critical error has occured :(");
                 console.log("Axios error:", error.message);
@@ -101,7 +89,6 @@ function Gacha() {
     
     useEffect(() => {
         const username = localStorage.getItem('username');
-        // console.log(username);
         if (!username) {
             setUser("");
             return;
@@ -117,11 +104,9 @@ function Gacha() {
         }
         var pullArray = new Array(10);
         pullArray = pullArray.fill(0).map(() => roll());
-        // console.log(pullArray);
         if (pity + 10 >= 90 && !pullArray.some(e => e.rarity === 5)) {
             pullArray[0] = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
         }
-        // console.log(pullArray);
         axios.put("/tenPull", {
             username: user,
             itemArray: pullArray
@@ -131,19 +116,15 @@ function Gacha() {
 
             setItem(pullArray);
             
-            //console.log(pullArray);
             if (modalOpen)
                 close();
             else
                 open();
-            // console.log("updating success");
         }).catch((error) => {
             if (error.response) {
                 alert(error.response.data);
-                // console.log(error.response.data);
             } else if (error.request) {
                 alert("Pulling: No response from server.");
-                // console.log("Pulling: No response from server.");
             } else {
                 alert("Pulling: A critical error has occured :(");
                 console.log("Pulling:  Axios error:", error.message);
@@ -158,7 +139,6 @@ function Gacha() {
         }
         var singleItem = roll();
         setItem([singleItem]);
-        //console.log(wish.name);
         if (modalOpen)
             close();
         else
@@ -169,14 +149,11 @@ function Gacha() {
             item: singleItem
         }).then((response) => {
             syncDB(user);
-            // console.log("updating success");
         }).catch((error) => {
             if (error.response) {
                 alert(error.response.data);
-                // console.log(error.response.data);
             } else if (error.request) {
                 alert("Pulling: No response from server.");
-                // console.log("Pulling: No response from server.");
             } else {
                 alert("Pulling: A critical error has occured :(");
                 console.log("Pulling:  Axios error:", error.message);

@@ -37,17 +37,13 @@ function Login() {
       withCredentials: true
     }).then((response) => {
       alert("Login successful! :)")
-      // console.log(response);
-      // console.log("Logged In");
       localStorage.setItem("username", un);
       navigate("/dashboard");
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
-        // console.log(error.response.data);
       } else if (error.request) {
         alert("No response from server.");
-        // console.log("No response from server.");
       } else {
         alert("A critical error has occured :(");
         console.log("Axios error:", error.message);

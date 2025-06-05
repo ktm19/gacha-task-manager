@@ -33,10 +33,8 @@ const Navbar = () => {
           </div>
           {links.map((link) => (
             <button 
-              
               key={link.path}
               onClick={() => (link.path === currentPath) ? navigate(0) : navigate(link.path)}
-              // disabled={link.path === currentPath}
               style={{margin: '5px', 'background-color': "#662d2d", 'color': "#f5efe0"}}
               className={`flex-1 text-center py-2 px-4 mx-2 rounded-lg border-2 transition-all duration-200 ${
                 link.path === currentPath

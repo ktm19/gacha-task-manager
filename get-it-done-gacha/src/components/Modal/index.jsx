@@ -25,15 +25,10 @@ const newspaper = {
         duration: 0.5,
       },
     },
-    // exit: {
-    //   y: "100vh",
-    //   opacity: 0,
-    // },
   };
 
 const Modal = ({ handleClose, item, ret}) => {
   let audio = new Audio("/eggert_voiceline.mp3");
-    // console.log(item.rarity);
     var bg = (item.rarity == 4)? "modal pink-gradient" : (item.rarity == 5)? "modal gold-gradient" : "modal blue-gradient";
     return (
       <Backdrop onClick={handleClose}>
@@ -47,19 +42,11 @@ const Modal = ({ handleClose, item, ret}) => {
           >
             <h2 style={{marginBottom: 0}}>{item.name}</h2> 
             <img src={item.imagePath} width="300" height="300"/>
-            <button style={{'background-color': "#662d2d"}} onClick={handleClose}>{ret}</button>
+            <button style={{'background-color': "#662d2d", 'color': "#f5efe0"}} onClick={handleClose}>{ret}</button>
           </motion.div>
       </Backdrop>
     );
   };
 
-
-  /* structure of an item:
-const exampleItem = {
-    name: "",
-    description: "",
-    imagePath (path starting not include "public"): "" 
-};
-*/
   
   export default Modal;

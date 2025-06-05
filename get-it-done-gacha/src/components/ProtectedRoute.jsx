@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children }) => {
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return <div>Loading...</div>; // You can replace this with a loading spinner
+    return <div>Loading...</div>;
   }
 
   // Redirect to login if not authenticated

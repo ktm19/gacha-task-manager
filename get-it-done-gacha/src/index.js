@@ -18,12 +18,9 @@ This program is free software: you can redistribute it and/or modify
 ========================================================== */
 
 import express from 'express'
-//const express = require('express');
 const app = express();
 import bodyParser from 'body-parser'
-// const bodyParser = require('body-parser');
 import connection from './database.js'
-// const connection = require('./database');
 
 // Add middleware
 app.use(bodyParser.json());
@@ -58,7 +55,6 @@ connection.query(
       console.error('Error creating shelf table:', error);
       return;
     }
-    // console.log('Shelf table exists or was created successfully');
   }
 );
 
