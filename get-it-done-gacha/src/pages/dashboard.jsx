@@ -13,7 +13,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  // Authentication state
+  // authentication state
   const [loginData, setLoginData] = useState({
     username: "",
     password: ""
@@ -24,12 +24,12 @@ const Dashboard = () => {
   });
   const [showRegister, setShowRegister] = useState(false);
 
-  // Check if user is logged in on component mount
+  // is user logged in?
   useEffect(() => {
     checkLoginStatus();
   }, []);
 
-  // Fetch all user data when logged in
+  // fetch all user data when logged in
 useEffect(() => {
   const fetchData = async () => {
     if (isLoggedIn) {
@@ -39,14 +39,7 @@ useEffect(() => {
   fetchData();
 }, [isLoggedIn]);
 
-  // Fetch data on component mount if already logged in
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     fetchUserMoney();
-  //   }
-  // }, []); // Empty dependency array means it runs on every mount
-
-  // Add window focus event listener to refetch data
+  // focus event listener
   useEffect(() => {
     const handleFocus = () => {
       if (isLoggedIn) {
@@ -58,7 +51,6 @@ useEffect(() => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [isLoggedIn]);
 
-  // Implement Page Visibility API to detect when page becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isLoggedIn) {
@@ -92,24 +84,6 @@ useEffect(() => {
   };
 
   const checkLoginStatus = async () => {
-    // try {
-    //   const response = await fetch("/login", {
-    //     method: "GET",
-    //     credentials: "include",
-    //   });
-    //   if (response.ok) {
-    //     const data = await response.json();
-    //     if (data.loggedIn) {
-    //       setUser(data.user);
-    //       setIsLoggedIn(true);
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error("Error checking login status:", error);
-    // } finally {
-    //   setLoading(false);
-    // }
-
       const username = localStorage.getItem('username');
       
       if (!username) {
@@ -138,60 +112,6 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("Error fetching user money:", error);
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(loginData),
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.username);
-        setIsLoggedIn(true);
-        setMessage("Logged in successfully!");
-        setLoginData({ username: "", password: "" });
-      } else {
-        const error = await response.text();
-        setMessage(`Login failed: ${error}`);
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setMessage("Login failed. Please try again.");
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(registerData),
-      });
-
-      if (response.ok) {
-        const result = await response.text();
-        setMessage(`Registration successful! ${result}`);
-        setRegisterData({ username: "", password: "" });
-        setShowRegister(false);
-      } else {
-        const error = await response.text();
-        setMessage(`Registration failed: ${error}`);
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setMessage("Registration failed. Please try again.");
     }
   };
 
@@ -232,13 +152,12 @@ useEffect(() => {
     const completedTask = tasks.find((t) => t.id === id);
     if (!completedTask) return;
 
-    // Mark task as exiting
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, state: "exiting" } : t))
     );
 
     try {
-      // Send probability to backend to determine if user gets a pull
+      // send probability to backend to determine if user gets a pull
       const response = await fetch("/completeTask", {
         method: "PUT",
         headers: {
@@ -252,9 +171,8 @@ useEffect(() => {
         const result = await response.json();
         setMessage(result.message);
         
-        // If user earned a pull, refresh the total pulls from database
+        // if user earned a pull, refresh the total pulls from database
         if (result.earnedPull) {
-          // Instead of just incrementing, fetch fresh data from database
           await fetchUserMoney();
         }
       } else {
@@ -266,13 +184,13 @@ useEffect(() => {
       setMessage("Error completing task. Please try again.");
     }
 
-    // Remove task after animation completes
+    // remove task
     setTimeout(() => {
       setTasks((prev) => prev.filter((t) => t.id !== id));
     }, 300);
   };
 
-  // Clear message after 3 seconds
+  // message (3 seconds)
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 3000);
@@ -290,89 +208,6 @@ useEffect(() => {
 
   if (!isLoggedIn) {
     navigate("/");
-    // return (
-    //   <div className="dashboard-container">
-    //     <div className="auth-container">
-    //       {message && <div className="message">{message}</div>}
-          
-    //       {!showRegister ? (
-    //         <form onSubmit={handleLogin} className="auth-form">
-    //           <h2>Login</h2>
-    //           <input
-    //             type="text"
-    //             placeholder="Username"
-    //             value={loginData.username}
-    //             onChange={(e) =>
-    //               setLoginData({ ...loginData, username: e.target.value })
-    //             }
-    //             className="auth-input"
-    //             required
-    //           />
-    //           <input
-    //             type="password"
-    //             placeholder="Password"
-    //             value={loginData.password}
-    //             onChange={(e) =>
-    //               setLoginData({ ...loginData, password: e.target.value })
-    //             }
-    //             className="auth-input"
-    //             required
-    //           />
-    //           <button type="submit" className="auth-button">
-    //             Login
-    //           </button>
-    //           <p>
-    //             Don't have an account?{" "}
-    //             <button
-    //               type="button"
-    //               onClick={() => setShowRegister(true)}
-    //               className="link-button"
-    //             >
-    //               Register here
-    //             </button>
-    //           </p>
-    //         </form>
-    //       ) : (
-    //         <form onSubmit={handleRegister} className="auth-form">
-    //           <h2>Register</h2>
-    //           <input
-    //             type="text"
-    //             placeholder="Username"
-    //             value={registerData.username}
-    //             onChange={(e) =>
-    //               setRegisterData({ ...registerData, username: e.target.value })
-    //             }
-    //             className="auth-input"
-    //             required
-    //           />
-    //           <input
-    //             type="password"
-    //             placeholder="Password"
-    //             value={registerData.password}
-    //             onChange={(e) =>
-    //               setRegisterData({ ...registerData, password: e.target.value })
-    //             }
-    //             className="auth-input"
-    //             required
-    //           />
-    //           <button type="submit" className="auth-button">
-    //             Register
-    //           </button>
-    //           <p>
-    //             Already have an account?{" "}
-    //             <button
-    //               type="button"
-    //               onClick={() => setShowRegister(false)}
-    //               className="link-button"
-    //             >
-    //               Login here
-    //             </button>
-    //           </p>
-    //         </form>
-    //       )}
-    //     </div>
-    //   </div>
-    // );
   }
 
   return (

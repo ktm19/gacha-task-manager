@@ -13,17 +13,16 @@ const Habits = () => {
   const [message, setMessage] = useState("");
   const [inputValues, setInputValues] = useState(["", "", "", ""]);
   
-  // Authentication state
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [registerData, setRegisterData] = useState({ username: "", password: "" });
   const [showRegister, setShowRegister] = useState(false);
 
-  // Check if user is logged in on component mount
+  // is user logged in?
   useEffect(() => {
     checkLoginStatus();
   }, []);
 
-  // Fetch all user data when logged in
+  // if logged in, fetch data
   useEffect(() => {
     const fetchData = async () => {
       if (isLoggedIn) {
@@ -33,7 +32,7 @@ const Habits = () => {
     fetchData();
   }, [isLoggedIn]);
 
-  // Add window focus event listener to refetch data
+  // refetch data when window is focused
   useEffect(() => {
     const handleFocus = () => {
       if (isLoggedIn) {
@@ -45,7 +44,7 @@ const Habits = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [isLoggedIn]);
 
-  // Implement Page Visibility API to detect when page becomes visible
+
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isLoggedIn) {
@@ -73,23 +72,6 @@ const Habits = () => {
   };
 
   const checkLoginStatus = async () => {
-    // try {
-    //   const response = await fetch("/login", {
-    //     method: "GET",
-    //     credentials: "include",
-    //   });
-    //   if (response.ok) {
-    //     const data = await response.json();
-    //     if (data.loggedIn) {
-    //       setUser(data.user);
-    //       setIsLoggedIn(true);
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error("Error checking login status:", error);
-    // } finally {
-    //   setLoading(false);
-    // }
 
       const username = localStorage.getItem('username');
       
@@ -118,54 +100,6 @@ const Habits = () => {
       }
     } catch (error) {
       console.error("Error fetching user money:", error);
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(loginData),
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        setIsLoggedIn(true);
-        setMessage("Logged in successfully!");
-        setLoginData({ username: "", password: "" });
-      } else {
-        const error = await response.text();
-        setMessage(`Login failed: ${error}`);
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setMessage("Login failed. Please try again.");
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registerData),
-      });
-      if (response.ok) {
-        const result = await response.text();
-        setMessage(`Registration successful! ${result}`);
-        setRegisterData({ username: "", password: "" });
-        setShowRegister(false);
-      } else {
-        const error = await response.text();
-        setMessage(`Registration failed: ${error}`);
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setMessage("Registration failed. Please try again.");
     }
   };
 
@@ -240,81 +174,6 @@ const Habits = () => {
 
   if (!isLoggedIn) {
     navigate("/");
-  //   return (
-  //     <div className="dashboard-container">
-  //       <div className="dashboard-header">
-  //         <h1 className="title">Welcome to Habits</h1>
-  //         {message && <div className="message">{message}</div>}
-  //         {!showRegister ? (
-  //           <form onSubmit={handleLogin}>
-  //             <div className="form-group">
-  //               <input
-  //                 type="text"
-  //                 className="form-control"
-  //                 placeholder="Username"
-  //                 value={loginData.username}
-  //                 onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
-  //                 required
-  //               />
-  //             </div>
-  //             <div className="form-group">
-  //               <input
-  //                 type="password"
-  //                 className="form-control"
-  //                 placeholder="Password"
-  //                 value={loginData.password}
-  //                 onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-  //                 required
-  //               />
-  //             </div>
-  //             <button type="submit" className="btn btn--primary btn--full-width">
-  //               Login
-  //             </button>
-  //             <button
-  //               type="button"
-  //               className="btn btn--secondary btn--full-width mt-8"
-  //               onClick={() => setShowRegister(true)}
-  //             >
-  //               Register
-  //             </button>
-  //           </form>
-  //         ) : (
-  //           <form onSubmit={handleRegister}>
-  //             <div className="form-group">
-  //               <input
-  //                 type="text"
-  //                 className="form-control"
-  //                 placeholder="Username"
-  //                 value={registerData.username}
-  //                 onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
-  //                 required
-  //               />
-  //             </div>
-  //             <div className="form-group">
-  //               <input
-  //                 type="password"
-  //                 className="form-control"
-  //                 placeholder="Password"
-  //                 value={registerData.password}
-  //                 onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-  //                 required
-  //               />
-  //             </div>
-  //             <button type="submit" className="btn btn--primary btn--full-width">
-  //               Register
-  //             </button>
-  //             <button
-  //               type="button"
-  //               className="btn btn--secondary btn--full-width mt-8"
-  //               onClick={() => setShowRegister(false)}
-  //             >
-  //               Back to Login
-  //             </button>
-  //           </form>
-  //         )}
-  //       </div>
-  //     </div>
-  //   );
   }
 
   // // Create array of 4 slots for habits
