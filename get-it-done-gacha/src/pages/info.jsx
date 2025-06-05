@@ -24,16 +24,6 @@ import { Link, useNavigate } from 'react-router-dom';
 function Info() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-      const username = localStorage.getItem('username');
-      
-      if (!username) {
-        return;
-      }
-      
-      navigate("/dashboard");
-    }, []);
-
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Welcome, CS 35L Traveler! </h1>
@@ -41,7 +31,7 @@ function Info() {
         <p>Ever wanted to replace all of your bad habits with one, singular bad habit?</p>
         <p>Well, now you can! Set daily tasks and long term habits for yourself,</p>
         <p>complete them, and earn gacha pulls. Legendary rewards await you!</p>
-        <div><img src="banner.png" width="800" height="auto" border-radius="15px"/></div>
+        <div><img src="banner2.png" width="800" height="auto" border-radius="15px"/></div>
         <p>
           <Link
             to="/dashboard"
