@@ -33,16 +33,14 @@ function Register() {
       password: pw,
     }).then((response) => {
       alert("Registration successful! :)")
-      console.log(response);
+      // console.log(response);
       localStorage.setItem("username", un);
       navigate("/info");
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
-        console.log(error.response.data);
       } else if (error.request) {
         alert("No response from server.");
-        console.log("No response from server.");
       } else {
         alert("A critical error has occured :(");
         console.log("Axios error:", error.message);
@@ -58,7 +56,6 @@ function Register() {
     navigate("/dashboard");
   }, []);
 
-  console.log("Register page loaded");
   return (
     <div className = "p-4 justify-center items-center flex flex-col h-screen bg-gray-100">
       <h1 className = "text-xl font-bold mb-4"> Register </h1>
@@ -69,7 +66,6 @@ function Register() {
           const [username, password, confirmPassword] = values;
           if (password !== confirmPassword) {
             alert("Passwords do not match!");
-            console.log("Passwords do not match!");
             return;
           }
           register(username, password);

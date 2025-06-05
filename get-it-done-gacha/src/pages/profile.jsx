@@ -28,9 +28,7 @@ function Profile() {
   const handleClick = (user) => {
     const origUser = localStorage.getItem('username');
 
-    console.log("user: " + user + ", origUser: " + origUser);
     setDisplayUser(user);
-    console.log("set display user to " + user);
     setFriendsList([]);
     getFriendsList(user);
     fetchUserStatus(user);
@@ -70,12 +68,12 @@ function Profile() {
     if (!username) return;
     
     try {
-      console.log('Fetching status for user:', username);
+      // console.log('Fetching status for user:', username);
       const response = await axios.get(`/getUserStatus`, { 
         params: { username },
         withCredentials: true 
       });
-      console.log('Status response:', response.data);
+      // console.log('Status response:', response.data);
       setUserStatus(response.data.status || '');
       setError('');
     } catch (error) {
@@ -93,7 +91,7 @@ function Profile() {
     if (!username) return;
     
     try {
-      console.log('Updating status for user:', username, 'New status:', newStatus);
+      // console.log('Updating status for user:', username, 'New status:', newStatus);
       const response = await axios.put(`/updateUserStatus`, 
         { status: newStatus }, 
         { 
@@ -101,7 +99,7 @@ function Profile() {
           withCredentials: true 
         }
       );
-      console.log('Update response:', response.data);
+      // console.log('Update response:', response.data);
       setUserStatus(response.data.status);
       setError('');
     } catch (error) {
@@ -121,7 +119,7 @@ function Profile() {
     if (!username) return;
     
     try {
-      console.log('Saving shelf layout for user:', username);
+      // console.log('Saving shelf layout for user:', username);
       // Map the image paths back to item names
       const slots = selectedImages.map(imagePath => {
         if (!imagePath) return null;
@@ -129,7 +127,7 @@ function Profile() {
         const item = inventoryItems.find(item => item.path === imagePath);
         if (item) return item.name;
         // If not found in inventory (which might happen right after loading), try to get name from path
-        console.log('Image path:', imagePath);
+        // console.log('Image path:', imagePath);
         return null;
       });
 
@@ -140,7 +138,7 @@ function Profile() {
           withCredentials: true 
         }
       );
-      console.log('Shelf layout saved successfully');
+      // console.log('Shelf layout saved successfully');
     } catch (error) {
       console.error('Failed to save shelf layout:', error);
       console.error('Error details:', error.response?.data);
@@ -198,12 +196,12 @@ function Profile() {
     if (!username) return;
     
     try {
-      console.log('Fetching shelf layout for user:', username);
+      // console.log('Fetching shelf layout for user:', username);
       const response = await axios.get('/getShelf', {
         params: { username },
         withCredentials: true
       });
-      console.log('Shelf layout response:', response.data);
+      // console.log('Shelf layout response:', response.data);
       // Use the image paths instead of slots for display
       setSelectedImages(response.data.images || Array(4).fill(null));
     } catch (error) {
@@ -217,12 +215,12 @@ function Profile() {
     if (!username) return;
     
     try {
-      console.log('Fetching inventory for user:', username);
+      // console.log('Fetching inventory for user:', username);
       const response = await axios.get('/inventory', {
         params: { username },
         withCredentials: true
       });
-      console.log('Inventory response:', response.data);
+      // console.log('Inventory response:', response.data);
       setInventoryItems(response.data.map((item, index) => ({
         id: index + 1,
         name: item.item_name,
@@ -267,7 +265,7 @@ function Profile() {
       {/* Username in top left */}
       <div className="username">
         <h2>
-          <Link to={`/dashboard`} className="username-link">
+          <Link to={`/dashboard`} className="username-link" style={{marginTop: "1em", marginBottom: "2em"}}>
             {(displayUser || "Guest") + "'s Profile"}
           </Link>
         </h2>
@@ -334,7 +332,7 @@ function Profile() {
                       // Remove both .PNG and .jpg extensions and convert to lowercase to get img name to match
                       // itemDesc...json
                       const itemKey = filename.replace(/\.(png|jpg)$/i, '').toLowerCase();
-                      console.log('Looking up description for:', itemKey);
+                      // console.log('Looking up description for:', itemKey);
                       const description = itemDescriptions[itemKey];
                       if (description) {
                         setHoveredItem({

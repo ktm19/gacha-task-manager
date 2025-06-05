@@ -31,13 +31,14 @@ function Info() {
         <p>Ever wanted to replace all of your bad habits with one, singular bad habit?</p>
         <p>Well, now you can! Set daily tasks and long term habits for yourself,</p>
         <p>complete them, and earn gacha pulls. Legendary rewards await you!</p>
-        <div><img src="banner2.png" width="800" height="auto" border-radius="15px"/></div>
+        <div><img src="banner2.png" width="600" height="auto" border-radius="15px"/></div>
         <p>
           <Link
             to="/dashboard"
           >
-            Let's begin!
+            <button style={{ marginRight: '1em', 'background-color': "#662d2d", 'color': "#f5efe0"}}>Let's begin!</button>
           </Link>
+          
         </p>
       </div>
     </div>

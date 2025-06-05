@@ -58,7 +58,7 @@ connection.query(
       console.error('Error creating shelf table:', error);
       return;
     }
-    console.log('Shelf table exists or was created successfully');
+    // console.log('Shelf table exists or was created successfully');
   }
 );
 

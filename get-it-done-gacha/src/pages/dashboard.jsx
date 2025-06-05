@@ -79,7 +79,7 @@ useEffect(() => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setTasks(data.tasks.map(task => ({
           ...task,
           state: 'visible',
@@ -132,7 +132,7 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setTotalPulls(data.money); 
-        console.log("Fetched user money:", data.money);
+        // console.log("Fetched user money:", data.money);
       } else {
         console.error("Failed to fetch user money");
       }

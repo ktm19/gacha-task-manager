@@ -43,12 +43,9 @@ function SearchForFriend() {
     }).catch((error) => {
       setShowSearchResults(false);
       if (error.response) {
-        // alert(error.response.data);
         setSearchResultMessage(error.response.data);
-        console.log(error.response.data);
       } else if (error.request) {
         alert("No response from server.");
-        console.log("No response from server.");
       } else {
         alert("A critical error has occured :(");
         console.log("Axios error:", error.message);
@@ -69,10 +66,8 @@ function SearchForFriend() {
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
-        console.log(error.response.data);
       } else if (error.request) {
         alert("No response from server.");
-        console.log("No response from server.");
       } else {
         alert("A critical error has occured :(");
         console.log("Axios error:", error.message);
@@ -94,18 +89,14 @@ function SearchForFriend() {
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
-        console.log(error.response.data);
       } else if (error.request) {
         alert("No response from server.");
-        console.log("No response from server.");
       } else {
         alert("A critical error has occured :(");
         console.log("Axios error:", error.message);
       }
     });
   };
-
-  // console.log("Search for friends page loaded");
 
   useEffect(() => {
     const username = localStorage.getItem('username');

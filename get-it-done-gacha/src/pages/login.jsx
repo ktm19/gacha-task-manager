@@ -44,10 +44,10 @@ function Login() {
     }).catch((error) => {
       if (error.response) {
         alert(error.response.data);
-        console.log(error.response.data);
+        // console.log(error.response.data);
       } else if (error.request) {
         alert("No response from server.");
-        console.log("No response from server.");
+        // console.log("No response from server.");
       } else {
         alert("A critical error has occured :(");
         console.log("Axios error:", error.message);

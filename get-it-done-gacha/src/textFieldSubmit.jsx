@@ -33,7 +33,7 @@ export default function textFieldSubmit({numFields = 2, onSubmit, fieldPlacehold
     // when the form is submitted, don't refresh
     // and take action (whatever was passed in through onSubmit)
     const handleSubmit = (e) => {
-        console.log("submitting: " + text[0]);
+        // console.log("submitting: " + text[0]);
         e.preventDefault();
         
         onSubmit(text);

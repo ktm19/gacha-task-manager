@@ -33,13 +33,8 @@ const newspaper = {
 
 const Modal = ({ handleClose, item, ret}) => {
   let audio = new Audio("/eggert_voiceline.mp3");
-    //TO DO. change className gradient based on rarity
-    console.log(item.rarity);
+    // console.log(item.rarity);
     var bg = (item.rarity == 4)? "modal pink-gradient" : (item.rarity == 5)? "modal gold-gradient" : "modal blue-gradient";
-    // if (rarity == 4)
-    //   bg = "modal pink-gradient";
-    // else
-    //   bg = "modal gold-gradient";
     return (
       <Backdrop onClick={handleClose}>
           <motion.div

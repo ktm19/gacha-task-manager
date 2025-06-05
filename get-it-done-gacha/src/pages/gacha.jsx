@@ -47,7 +47,7 @@ function Gacha() {
     const close = () => {
         setModalOpen(false);
         if (item.length > 1) {
-            console.log("chain");
+            // console.log("chain");
             setItem(item.slice(1));
             open();
         } else if (item.length == 2)
@@ -65,7 +65,7 @@ function Gacha() {
          *  2%    5*
          */
         var rand = Math.random() * 100;
-        console.log(rand);
+        // console.log(rand);
         var pull;
         if (rand < 2 || (pity >= 80 && rand < 5) || pity >= 90) {
             pull = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
@@ -88,10 +88,10 @@ function Gacha() {
         }).catch((error) => {
             if (error.response) {
                 alert(error.response.data);
-                console.log(error.response.data);
+                // console.log(error.response.data);
             } else if (error.request) {
                 alert("No response from server.");
-                console.log("No response from server.");
+                // console.log("No response from server.");
             } else {
                 alert("A critical error has occured :(");
                 console.log("Axios error:", error.message);
@@ -117,11 +117,11 @@ function Gacha() {
         }
         var pullArray = new Array(10);
         pullArray = pullArray.fill(0).map(() => roll());
-        console.log(pullArray);
+        // console.log(pullArray);
         if (pity + 10 >= 90 && !pullArray.some(e => e.rarity === 5)) {
             pullArray[0] = itemList.fiveStars[Math.floor(Math.random() * itemList.fiveStars.length)];
         }
-        console.log(pullArray);
+        // console.log(pullArray);
         axios.put("/tenPull", {
             username: user,
             itemArray: pullArray
@@ -136,14 +136,14 @@ function Gacha() {
                 close();
             else
                 open();
-            console.log("updating success");
+            // console.log("updating success");
         }).catch((error) => {
             if (error.response) {
                 alert(error.response.data);
-                console.log(error.response.data);
+                // console.log(error.response.data);
             } else if (error.request) {
                 alert("Pulling: No response from server.");
-                console.log("Pulling: No response from server.");
+                // console.log("Pulling: No response from server.");
             } else {
                 alert("Pulling: A critical error has occured :(");
                 console.log("Pulling:  Axios error:", error.message);
@@ -169,14 +169,14 @@ function Gacha() {
             item: singleItem
         }).then((response) => {
             syncDB(user);
-            console.log("updating success");
+            // console.log("updating success");
         }).catch((error) => {
             if (error.response) {
                 alert(error.response.data);
-                console.log(error.response.data);
+                // console.log(error.response.data);
             } else if (error.request) {
                 alert("Pulling: No response from server.");
-                console.log("Pulling: No response from server.");
+                // console.log("Pulling: No response from server.");
             } else {
                 alert("Pulling: A critical error has occured :(");
                 console.log("Pulling:  Axios error:", error.message);
@@ -187,7 +187,7 @@ function Gacha() {
 
     return (
         <b>
-            <h2>Gacha!</h2>
+            <h2  style={{marginTop: "1em"}}>Gacha!</h2>
             <p></p>
             <div><img src="banner.png" width="800" height="auto" border-radius="15px"/></div>
             <p></p>

@@ -31,18 +31,11 @@ import connection from "./database.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(dirname(__filename), "..");
-// console.log(__dirname);
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173'], //changed at 10:56AM 10/16/2023
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173'], 
   credentials: true,
- /*changed at 10:56AM 10/16/2023
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cookie'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range', 'Set-Cookie'],
-  optionsSuccessStatus: 200
-  changed at 10:56AM 10/16/2023*/
 }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -54,11 +47,6 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      /* changed at 11:10am 10/16/2023 ts lowkey dont work but keeping it here for reference
-      secure: false,                // keep false for local development
-      sameSite: 'none',            // required for cross-site cookie access
-      httpOnly: true,              // prevents client-side access to cookies
-       changed at 11:10am 10/16/2023 */
     },
     proxy: true                    // trust the reverse proxy 
   })
@@ -67,15 +55,11 @@ app.use(
 app.use(express.json())
 
 app.use(express.urlencoded({extended: true}))
-// app.use(express.static(join(__dirname, "public"))); // For static stuff like HTML files
-// console.log(join(__dirname, "public"));
 
 // For JSX
 app.set("views", join(__dirname, "get-it-done-gacha/src"));
 app.set("view engine", "jsx");
 app.engine("jsx", createEngine());
-
-// app.get("/", (req, res) => res.send("Try: /status, /users, or /tasks/2"));
 
 app.get("/status", function (req, res, next) { res.send("Success."); });
 
@@ -92,7 +76,6 @@ app.get("/users", (req, res) => {
 
 app.get("/searchForUser", async (req, res) => {
   const username = req.query.username;
-  // const { username } = req.body;
   //find user by username
   const query = "SELECT * FROM users WHERE username = ?";
   connection.query(query, [username], async (err, results) => {
@@ -110,18 +93,13 @@ app.put("/pull", async (req, res) => {
   const username = req.body.username;
   const item = req.body.item;
   var sql = "UPDATE users SET pity = " + ((item.rarity == 5) ? "0" : " pity + 1") + ", money = money - 1 WHERE username = '" + username + "'";
-  console.log(sql);
   connection.query(sql, function (err, result) {
     if (err) throw err;
-    console.log("updated pity + pulls");
-    //return res.status(200).send("Pity Update successful.");
   });
-  console.log("adding to db");
   var inventoryQuery = "INSERT INTO inventory (username, item_name, img_path, item_rarity, item_copies) VALUES ('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1) ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
   console.log(inventoryQuery);
   connection.query(inventoryQuery, function (err, result) {
     if (err) throw err;
-    console.log("updated pity, pulls, inventory x1");
     return res.status(200).send("Inventory/Pull Update successful.");
   });
 
@@ -130,10 +108,8 @@ app.put("/pull", async (req, res) => {
 app.put("/tenPull", async (req, res) => {
   const username = req.body.username;
   const itemArray = req.body.itemArray;
-  //console.log(itemArray);
   var pity = (itemArray.some(e => e.rarity === 5))? String((10 - 1 - itemArray.indexOf(itemArray.find((obj) => obj.rarity === 5)) )) : "pity + 10"; 
   var sql = "UPDATE users SET pity = " + pity + ", money = money - 10 WHERE username = '" + username + "'";
-  //console.log(sql);
   connection.query(sql, function (err, result) {
     if (err) throw err;
     var inventoryQuery = "INSERT INTO inventory (username, item_name, img_path, item_rarity, item_copies) VALUES ";
@@ -141,13 +117,10 @@ app.put("/tenPull", async (req, res) => {
     for (let item of itemArray) {
       inventoryQuery += "('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1), ";
       }
-      console.log(itemArray);
       inventoryQuery = inventoryQuery.slice(0, -2) + " ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
-      //console.log(inventoryQuery);
       console.log("updated pity + pulls");
       connection.query(inventoryQuery, function (err, result) {
         if (err) throw err;
-        console.log("updated pity, pulls, inventory x10");
         return res.status(200).send("Inventory/Pull Update successful.");
       });
     });
@@ -156,10 +129,8 @@ app.put("/tenPull", async (req, res) => {
 app.put("/resetPity", async (req, res) => {
   const username = req.body.username;
   var sql = "UPDATE users SET pity = 0 WHERE username = '" + username + "'";
-  //console.log(sql);
   connection.query(sql, function (err, result) {
     if (err) throw err;
-    console.log("Reset pity");
     return res.status(200).send("Pity Update successful.");
   });
 })
@@ -180,9 +151,7 @@ app.get("/getUserMoney", async (req, res) => {
         return res.status(500).send("Error fetching user money.");
       }
 
-      if (results.length === 0) {
-        return res.status(404).send("User not found.");
-      }
+      if (results.length === 0) return res.status(404).send("User not found.");
 
       res.status(200).json({
         money: results[0].money
@@ -202,7 +171,6 @@ app.put("/completeTask", async (req, res) => {
   const username = req.session.user.username;
   const taskProbability = req.body.probability; // Float between 0 and 1
   const id = req.body.id;
-  // console.log("id: " + id);
 
   if (!taskProbability || taskProbability < 0 || taskProbability > 1) {
     return res.status(400).send("Invalid probability value.");
@@ -233,7 +201,6 @@ app.put("/completeTask", async (req, res) => {
             return res.status(404).send("User not found.");
           }
   
-          console.log(`User ${username} earned a pull with probability ${taskProbability}`);
           res.status(200).json({
             earnedPull: true,
             probability: taskProbability,
@@ -242,24 +209,19 @@ app.put("/completeTask", async (req, res) => {
         });
       } else {
         // User didn't earn a pull, but task was still completed
-        console.log(`User ${username} didn't earn a pull with probability ${taskProbability}`);
         res.status(200).json({
           earnedPull: false,
           probability: taskProbability,
           message: "Task completed! No pull earned this time."
         });
       }
-
-
     });
-
     
   } catch (error) {
     console.error(error);
     return res.status(500).send("Server error.");
   }
 });
-
 
 
 
