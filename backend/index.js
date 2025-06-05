@@ -97,7 +97,6 @@ app.put("/pull", async (req, res) => {
     if (err) throw err;
   });
   var inventoryQuery = "INSERT INTO inventory (username, item_name, img_path, item_rarity, item_copies) VALUES ('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1) ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
-  console.log(inventoryQuery);
   connection.query(inventoryQuery, function (err, result) {
     if (err) throw err;
     return res.status(200).send("Inventory/Pull Update successful.");
@@ -118,7 +117,6 @@ app.put("/tenPull", async (req, res) => {
       inventoryQuery += "('" + username + "', '" + item.name + "', '" + item.imagePath + "', " + item.rarity + ", 1), ";
       }
       inventoryQuery = inventoryQuery.slice(0, -2) + " ON DUPLICATE KEY UPDATE item_copies = item_copies + 1";
-      console.log("updated pity + pulls");
       connection.query(inventoryQuery, function (err, result) {
         if (err) throw err;
         return res.status(200).send("Inventory/Pull Update successful.");
@@ -551,7 +549,6 @@ const checkAndResetHabits = async () => {
         console.error('Error resetting habits:', err);
         reject(err);
       } else {
-        console.log(`Reset ${result.affectedRows} completed habits for new day`);
         resolve(result);
       }
     });
@@ -712,7 +709,6 @@ app.put("/completeHabit", async (req, res) => {
             return res.status(404).send("User not found");
           }
 
-          console.log(`User ${req.session.user.username} completed habit ${habitId} and earned 3 pulls`);
           res.status(200).json({
             message: "Habit completed! You earned 3 pulls!",
             earnedPulls: 3
