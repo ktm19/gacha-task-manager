@@ -13,7 +13,7 @@ To run locally:
 
 - `cd ../backend`
 - `npm ci`
-- Create a .env file with the credentials in the tarball.
+- The tarball should have a .env file in backend with the database credentials.
 - `node index.js` You should see the database credentials, then something like:
   ![image](https://github.com/user-attachments/assets/867b0435-654a-4fad-99fe-f3dd7d13761f)
 
