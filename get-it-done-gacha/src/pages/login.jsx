@@ -91,10 +91,19 @@ function Login() {
           </Link>
         </p>
       </div>
+      <div className="flex-shrink-0">
+        <img src="eggert2.png" alt="Logo" width="160" height="auto" border-radius="15px" className="h-10 w-auto" />
+      </div>
+      <div className="flex-shrink-0">
+        <img src="blank.png" alt="Logo" width="20" height="auto" border-radius="15px" className="h-10 w-auto" />
+      </div>
     </div>
   );
 }
 
 export default Login
+
+
+
 
 
