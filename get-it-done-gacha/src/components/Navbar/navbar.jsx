@@ -25,6 +25,12 @@ const Navbar = () => {
     <nav style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }} className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
       <div className="max-w-screen-xl mx-auto px-4">
         <div className="flex justify-around items-center h-16 gap-4">
+          <div className="flex-shrink-0">
+            <img src="eggert2.png" alt="Logo" width="160" height="auto" border-radius="15px" className="h-10 w-auto" />
+          </div>
+          <div className="flex-shrink-0">
+            <img src="blank.png" alt="Logo" width="20" height="auto" border-radius="15px" className="h-10 w-auto" />
+          </div>
           {links.map((link) => (
             <button 
               
@@ -55,3 +61,9 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+
+
+
+
