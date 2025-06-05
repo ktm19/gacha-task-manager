@@ -268,7 +268,7 @@ function Profile() {
       <div className="username">
         <h2>
           <Link to={`/dashboard`} className="username-link">
-            {displayUser || "Guest"}
+            {(displayUser || "Guest") + "'s Profile"}
           </Link>
         </h2>
       </div>
