@@ -63,17 +63,6 @@ app.engine("jsx", createEngine());
 
 app.get("/status", function (req, res, next) { res.send("Success."); });
 
-app.get("/users", (req, res) => {
-  connection.query(
-    "SELECT * FROM `main_db`.`users`",
-    (error, results, fields) => {
-      if (error) throw error;
-      res.json(results);
-    },
-  );
-});
-
-
 app.get("/searchForUser", async (req, res) => {
   const username = req.query.username;
   //find user by username
