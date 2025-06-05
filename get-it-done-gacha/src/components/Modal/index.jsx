@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Backdrop from "../Backdrop";
-
+import React from 'react';
 const newspaper = {
     hidden: {
       transform: "scale(0) rotate(720deg)",
@@ -32,6 +32,7 @@ const newspaper = {
   };
 
 const Modal = ({ handleClose, item, ret}) => {
+  let audio = new Audio("/eggert_voiceline.mp3");
     //TO DO. change className gradient based on rarity
     console.log(item.rarity);
     var bg = (item.rarity == 4)? "modal pink-gradient" : (item.rarity == 5)? "modal gold-gradient" : "modal blue-gradient";
