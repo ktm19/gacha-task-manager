@@ -2,8 +2,7 @@
 
 ## How to run our app
 
-Our app is available via Google Cloud on:
-https://gacha-test-297999012574.us-west1.run.app/
+Note: As we're no longer keeping the Google Cloud project active, the database-related features won't work unless you set up your own database.
 
 To run locally:
 - `cd get-it-done-gacha`
